@@ -1,0 +1,20 @@
+{
+  "network": "sepolia",
+  "deployer": "0x9Af5f64903F04C92A475316d50A63c8a7B51919b",
+  "timestamp": "2025-11-13T08:49:01.093Z",
+  "contracts": {
+    "nft": {
+      "address": "0xeC4Aae6cf695110DA2a4De78F5018bB9d9d3D605",
+      "name": "Scuttle NFT Collection",
+      "symbol": "SNFT",
+      "baseURI": "ipfs://",
+      "maxSupply": 10000,
+      "royaltyBasisPoints": 500,
+      "mintPrice": "1000000000000000"
+    },
+    "marketplace": {
+      "address": "0xcb5593D3dF2d92ba2B723BFDcCB6e04482fE5aA4",
+      "platformFeeBasisPoints": 250
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import { ethers } from "hardhat";
+import hre from "hardhat";
+const { ethers } = hre;
 
 async function main() {
   console.log("🚀 Deploying NFT contracts to Sepolia...\n");
@@ -16,7 +17,6 @@ async function main() {
   const baseURI = "ipfs://";
   const maxSupply = 10000;
   const royaltyBasisPoints = 500; // 5% royalty
-
   const mintPrice = ethers.parseEther("0.001"); // 0.001 ETH mint price
 
   const ConfidentialERC721 = await ethers.getContractFactory("ConfidentialERC721");
@@ -87,6 +87,7 @@ async function main() {
         baseURI,
         maxSupply,
         royaltyBasisPoints,
+        mintPrice: mintPrice.toString(),
       },
       marketplace: {
         address: marketplaceAddress,
@@ -95,10 +96,11 @@ async function main() {
     },
   };
 
-  const fs = require("fs");
-  const path = require("path");
+  // Save to file
+  const fs = await import("fs");
+  const path = await import("path");
   
-  const deploymentsDir = path.join(__dirname, "../deployments");
+  const deploymentsDir = path.join(process.cwd(), "deployments");
   if (!fs.existsSync(deploymentsDir)) {
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }

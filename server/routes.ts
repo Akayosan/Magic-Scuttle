@@ -12,8 +12,103 @@ import {
   insertNFTActivitySchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import multer from "multer";
+import FormData from "form-data";
+import fetch from "node-fetch";
+
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }
+});
+
+const PINATA_API_KEY = process.env.PINATA_API_KEY;
+const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
+
+async function uploadToIPFS(fileBuffer: Buffer, fileName: string): Promise<string> {
+  if (!PINATA_API_KEY || !PINATA_SECRET_KEY) {
+    throw new Error("Pinata API keys not configured");
+  }
+
+  const formData = new FormData();
+  formData.append('file', fileBuffer, fileName);
+  
+  const pinataMetadata = JSON.stringify({ name: fileName });
+  formData.append('pinataMetadata', pinataMetadata);
+
+  const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    method: 'POST',
+    headers: {
+      'pinata_api_key': PINATA_API_KEY,
+      'pinata_secret_api_key': PINATA_SECRET_KEY,
+      ...formData.getHeaders()
+    },
+    body: formData as any
+  });
+
+  if (!response.ok) {
+    throw new Error(`Pinata upload failed: ${response.statusText}`);
+  }
+
+  const data = await response.json() as { IpfsHash: string };
+  return `ipfs://${data.IpfsHash}`;
+}
+
+async function uploadJSONToIPFS(metadata: any): Promise<string> {
+  if (!PINATA_API_KEY || !PINATA_SECRET_KEY) {
+    throw new Error("Pinata API keys not configured");
+  }
+
+  const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'pinata_api_key': PINATA_API_KEY,
+      'pinata_secret_api_key': PINATA_SECRET_KEY
+    },
+    body: JSON.stringify(metadata)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Pinata JSON upload failed: ${response.statusText}`);
+  }
+
+  const data = await response.json() as { IpfsHash: string };
+  return `ipfs://${data.IpfsHash}`;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // IPFS upload endpoint
+  app.post("/api/ipfs/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: "No file provided" });
+        return;
+      }
+
+      const ipfsUrl = await uploadToIPFS(req.file.buffer, req.file.originalname);
+      res.json({ ipfsUrl });
+    } catch (error: any) {
+      console.error("IPFS upload error:", error);
+      res.status(500).json({ error: error.message || "Failed to upload to IPFS" });
+    }
+  });
+
+  app.post("/api/ipfs/upload-metadata", async (req, res) => {
+    try {
+      const metadata = req.body;
+      if (!metadata) {
+        res.status(400).json({ error: "No metadata provided" });
+        return;
+      }
+
+      const ipfsUrl = await uploadJSONToIPFS(metadata);
+      res.json({ ipfsUrl });
+    } catch (error: any) {
+      console.error("IPFS metadata upload error:", error);
+      res.status(500).json({ error: error.message || "Failed to upload metadata to IPFS" });
+    }
+  });
+
   // Token routes
   
   // Create a new token

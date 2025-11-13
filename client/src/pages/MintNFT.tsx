@@ -56,17 +56,21 @@ export default function MintNFT() {
   };
 
   const uploadToIPFS = async (file: File): Promise<string> => {
-    // Simplified IPFS upload - in production, you'd use a service like Pinata or web3.storage
-    // For now, we'll create a data URL as a placeholder
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // In production, upload to IPFS and return the IPFS hash
-        // For now, return a mock IPFS URL
-        resolve(`ipfs://QmMockHash${Date.now()}`);
-      };
-      reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/ipfs/upload', {
+      method: 'POST',
+      body: formData,
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload to IPFS');
+    }
+
+    const data = await response.json();
+    return data.ipfsUrl;
   };
 
   const createMetadata = async (imageURI: string) => {
@@ -77,10 +81,21 @@ export default function MintNFT() {
       attributes: attributes.filter(a => a.trait_type && a.value),
     };
     
-    // In production, upload metadata JSON to IPFS
-    // For now, create a mock metadata URI
-    const metadataString = JSON.stringify(metadata);
-    return `data:application/json;base64,${btoa(metadataString)}`;
+    const response = await fetch('/api/ipfs/upload-metadata', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(metadata),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload metadata to IPFS');
+    }
+
+    const data = await response.json();
+    return data.ipfsUrl;
   };
 
   const handleMint = async () => {

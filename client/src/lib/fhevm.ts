@@ -1,7 +1,5 @@
 import { BrowserProvider } from "ethers";
-// TODO: Install fhevmjs in Task 7 - temporarily stubbed for UI development
-// import { initFhevm, createInstance, FhevmInstance } from "fhevmjs";
-type FhevmInstance = any; // Temporary stub
+import { initFhevm, createInstance, FhevmInstance } from "fhevmjs";
 
 // Sepolia testnet fhEVM gateway and ACL addresses
 const FHEVM_GATEWAY_ADDRESS = "0x33347831500F1e73f0ccCBcb91a0C9d2b8Ab9324";
@@ -20,19 +18,18 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
   }
 
   try {
-    // TODO: Uncomment in Task 7 after installing fhevmjs
-    // await initFhevm();
-    // const network = await provider.getNetwork();
-    // const chainId = Number(network.chainId);
-    // fhevmInstance = await createInstance({
-    //   chainId,
-    //   networkUrl: window.location.origin,
-    //   gatewayUrl: FHEVM_GATEWAY_ADDRESS,
-    //   aclAddress: FHEVM_ACL_ADDRESS,
-    // });
+    await initFhevm();
+    const network = await provider.getNetwork();
+    const chainId = Number(network.chainId);
     
-    console.warn("fhEVM not yet initialized - will be implemented in Task 7");
-    fhevmInstance = {} as FhevmInstance; // Temporary stub
+    fhevmInstance = await createInstance({
+      chainId,
+      networkUrl: window.location.origin,
+      gatewayUrl: FHEVM_GATEWAY_ADDRESS,
+      aclAddress: FHEVM_ACL_ADDRESS,
+    });
+    
+    console.log("fhEVM initialized successfully for chainId:", chainId);
     return fhevmInstance;
   } catch (error) {
     console.error("Failed to initialize fhEVM:", error);

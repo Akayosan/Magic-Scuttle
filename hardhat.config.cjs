@@ -1,13 +1,13 @@
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-ethers";
-import "dotenv/config";
+require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-ethers");
+require("dotenv/config");
 
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL || "https://eth-sepolia.public.blastapi.io";
 const MNEMONIC = process.env.MNEMONIC || "test test test test test test test test test test test junk";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 
-const config: HardhatUserConfig = {
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
   solidity: {
     version: "0.8.24",
     settings: {
@@ -46,5 +46,3 @@ const config: HardhatUserConfig = {
     artifacts: "./artifacts",
   },
 };
-
-export default config;

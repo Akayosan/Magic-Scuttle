@@ -260,11 +260,12 @@ contract ConfidentialERC721 is ERC721, ERC721Royalty, ReentrancyGuard, Ownable, 
         
         // Clean up encrypted data
         if (hasEncryptedMetadata[tokenId]) {
-            delete _encryptedRarity[tokenId];
+            // Note: Cannot delete euint128 types - they remain in storage
+            // delete _encryptedRarity[tokenId]; // fhEVM types cannot be deleted
             uint256 attrCount = _attributeCount[tokenId];
-            for (uint256 i = 0; i < attrCount; i++) {
-                delete _encryptedAttributes[tokenId][i];
-            }
+            // for (uint256 i = 0; i < attrCount; i++) {
+            //     delete _encryptedAttributes[tokenId][i]; // fhEVM types cannot be deleted
+            // }
             delete _attributeCount[tokenId];
             delete hasEncryptedMetadata[tokenId];
         }

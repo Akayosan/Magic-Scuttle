@@ -67,7 +67,7 @@ export function useNFTContract() {
 
     try {
       const signer = await provider.getSigner();
-      const contract = getNFTContract(nftAddress, signer);
+      const contract: any = getNFTContract(nftAddress, provider).connect(signer);
 
       const value = parseEther(paymentAmount);
       const tx = await contract.mint(tokenURI, { value });
@@ -102,15 +102,16 @@ export function useNFTContract() {
     try {
       const signer = await provider.getSigner();
       const signerAddress = await signer.getAddress();
-      const contract = getNFTContract(nftAddress, signer);
+      const contract: any = getNFTContract(nftAddress, provider).connect(signer);
 
-      const encryptedInput = await createEncryptedInput(
+      const encryptedInputBuilder = await createEncryptedInput(
         fhevmInstance,
         nftAddress,
         signerAddress
       );
-      encryptedInput.add128(BigInt(rarity));
-      const { handles, inputProof } = encryptedInput.encrypt();
+      encryptedInputBuilder.add128(BigInt(rarity));
+      const encryptedInput = await encryptedInputBuilder.encrypt();
+      const { handles, inputProof } = encryptedInput;
 
       const value = parseEther(paymentAmount);
       const tx = await contract.mintWithEncryptedRarity(
@@ -146,7 +147,7 @@ export function useNFTContract() {
 
     try {
       const signer = await provider.getSigner();
-      const contract = getNFTContract(nftAddress, signer);
+      const contract: any = getNFTContract(nftAddress, provider).connect(signer);
 
       const tx = await contract.requestRarityReveal(tokenId);
       await tx.wait();
@@ -171,7 +172,7 @@ export function useNFTContract() {
 
     try {
       const signer = await provider.getSigner();
-      const contract = getNFTContract(nftAddress, signer);
+      const contract: any = getNFTContract(nftAddress, provider).connect(signer);
       const marketplace = marketplaceAddress || CONTRACT_ADDRESSES.MARKETPLACE;
 
       const tx = await contract.setApprovalForAll(marketplace, true);

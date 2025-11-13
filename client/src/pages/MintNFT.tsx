@@ -6,21 +6,33 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Upload, X, Plus, Lock, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Plus, Lock, Image as ImageIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@/contexts/WalletContext";
+import { useNFTContract } from "@/hooks/useNFTContract";
+import { getFhevmInstance } from "@/lib/fhevm";
+import { CONTRACT_ADDRESSES } from "@/lib/contracts";
+import { useLocation } from "wouter";
 
 export default function MintNFT() {
   const { toast } = useToast();
+  const { walletState, connectWallet } = useWallet();
+  const { mintNFT, mintNFTWithEncryption, isLoading } = useNFTContract();
+  const [, setLocation] = useLocation();
+  
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [attributes, setAttributes] = useState<Array<{ trait_type: string; value: string }>>([]);
   const [encryptRarity, setEncryptRarity] = useState(false);
   const [encryptAttributes, setEncryptAttributes] = useState(false);
+  const [rarity, setRarity] = useState<number>(1);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -43,8 +55,46 @@ export default function MintNFT() {
     setAttributes(attributes.filter((_, i) => i !== index));
   };
 
+  const uploadToIPFS = async (file: File): Promise<string> => {
+    // Simplified IPFS upload - in production, you'd use a service like Pinata or web3.storage
+    // For now, we'll create a data URL as a placeholder
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // In production, upload to IPFS and return the IPFS hash
+        // For now, return a mock IPFS URL
+        resolve(`ipfs://QmMockHash${Date.now()}`);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const createMetadata = async (imageURI: string) => {
+    const metadata = {
+      name,
+      description,
+      image: imageURI,
+      attributes: attributes.filter(a => a.trait_type && a.value),
+    };
+    
+    // In production, upload metadata JSON to IPFS
+    // For now, create a mock metadata URI
+    const metadataString = JSON.stringify(metadata);
+    return `data:application/json;base64,${btoa(metadataString)}`;
+  };
+
   const handleMint = async () => {
-    if (!imagePreview || !name) {
+    if (!walletState.isConnected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet to mint NFTs",
+        variant: "destructive",
+      });
+      connectWallet();
+      return;
+    }
+
+    if (!imageFile || !name) {
       toast({
         title: "Missing Information",
         description: "Please provide an image and name for your NFT",
@@ -53,10 +103,73 @@ export default function MintNFT() {
       return;
     }
 
-    toast({
-      title: "Minting NFT",
-      description: "This feature will be implemented with smart contract integration",
-    });
+    try {
+      toast({
+        title: "Preparing NFT",
+        description: "Uploading image and metadata...",
+      });
+
+      // Upload image to IPFS
+      const imageURI = await uploadToIPFS(imageFile);
+      
+      // Create and upload metadata
+      const tokenURI = await createMetadata(imageURI);
+
+      toast({
+        title: "Minting NFT",
+        description: "Please confirm the transaction in your wallet...",
+      });
+
+      let tokenId: number | null = null;
+
+      if (encryptRarity && walletState.provider) {
+        // Mint with encrypted rarity
+        const fhevmInstance = await getFhevmInstance();
+        tokenId = await mintNFTWithEncryption(
+          CONTRACT_ADDRESSES.NFT,
+          walletState.provider,
+          fhevmInstance,
+          tokenURI,
+          rarity,
+          "0.001" // Mint price in ETH
+        );
+      } else if (walletState.provider) {
+        // Basic mint without encryption
+        tokenId = await mintNFT(
+          CONTRACT_ADDRESSES.NFT,
+          walletState.provider,
+          tokenURI,
+          "0.001" // Mint price in ETH
+        );
+      }
+
+      if (tokenId !== null) {
+        toast({
+          title: "NFT Minted Successfully!",
+          description: `Your NFT #${tokenId} has been minted on Sepolia testnet`,
+        });
+
+        // Reset form
+        setImageFile(null);
+        setImagePreview(null);
+        setName("");
+        setDescription("");
+        setAttributes([]);
+        setEncryptRarity(false);
+        setEncryptAttributes(false);
+
+        // Navigate to profile after 2 seconds
+        setTimeout(() => {
+          setLocation("/nft/profile");
+        }, 2000);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Minting Failed",
+        description: error.message || "Failed to mint NFT. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -212,6 +325,25 @@ export default function MintNFT() {
                   />
                 </div>
 
+                {encryptRarity && (
+                  <div>
+                    <Label htmlFor="rarity">Rarity Level (1-100)</Label>
+                    <Input
+                      id="rarity"
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={rarity}
+                      onChange={(e) => setRarity(parseInt(e.target.value) || 1)}
+                      placeholder="Enter rarity level"
+                      data-testid="input-rarity"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Higher numbers = more rare. This value will be encrypted on-chain.
+                    </p>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Lock className="w-4 h-4 text-primary" />
@@ -224,8 +356,14 @@ export default function MintNFT() {
                     checked={encryptAttributes}
                     onCheckedChange={setEncryptAttributes}
                     data-testid="switch-encrypt-attributes"
+                    disabled={true}
                   />
                 </div>
+                {encryptAttributes && (
+                  <p className="text-xs text-muted-foreground">
+                    Coming soon: Encrypt individual attributes
+                  </p>
+                )}
               </div>
 
               {(encryptRarity || encryptAttributes) && (
@@ -303,11 +441,23 @@ export default function MintNFT() {
               <Button
                 className="w-full mt-6 h-12 text-lg"
                 onClick={handleMint}
-                disabled={!imagePreview || !name}
+                disabled={!imagePreview || !name || isLoading}
                 data-testid="button-mint"
               >
-                Mint NFT
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Minting...
+                  </>
+                ) : (
+                  "Mint NFT (0.001 ETH)"
+                )}
               </Button>
+              {!walletState.isConnected && (
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  Connect your wallet to mint
+                </p>
+              )}
             </Card>
           </div>
         </div>

@@ -1,10 +1,18 @@
-import { Contract, BrowserProvider, Interface } from "ethers";
+import { Contract, BrowserProvider, Interface, ContractRunner } from "ethers";
 import { CONFIDENTIAL_ERC721_ABI, CONFIDENTIAL_MARKETPLACE_ABI } from "./compiled-abis";
 
 // Contract addresses (env-based with fallback placeholders until Task 7 deployment)
 export const CONTRACT_ADDRESSES = {
   NFT: import.meta.env.VITE_NFT_CONTRACT_ADDRESS || "0xeC4Aae6cf695110DA2a4De78F5018bB9d9d3D605",
   MARKETPLACE: import.meta.env.VITE_MARKETPLACE_CONTRACT_ADDRESS || "0xcb5593D3dF2d92ba2B723BFDcCB6e04482fE5aA4",
+};
+
+// Type helper for NFT contract with full ABI methods
+export type ConfidentialERC721Contract = Contract & {
+  mint(tokenURI: string, options?: any): Promise<any>;
+  mintWithEncryptedRarity(tokenURI: string, encryptedRarity: any, rarityProof: any, options?: any): Promise<any>;
+  requestRarityReveal(tokenId: number): Promise<any>;
+  setApprovalForAll(operator: string, approved: boolean): Promise<any>;
 };
 
 /**
@@ -97,7 +105,7 @@ export function getPresaleContract(
  */
 export function getNFTContract(
   address: string,
-  provider: BrowserProvider
+  provider: BrowserProvider | ContractRunner
 ): Contract {
   return new Contract(address, CONFIDENTIAL_ERC721_ABI, provider);
 }

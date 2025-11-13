@@ -14,6 +14,13 @@ import CreateToken from "@/pages/CreateToken";
 import CreatePresale from "@/pages/CreatePresale";
 import ActivePresales from "@/pages/ActivePresales";
 import MyTokens from "@/pages/MyTokens";
+import NFTCollections from "@/pages/NFTCollections";
+import CollectionDetail from "@/pages/CollectionDetail";
+import NFTMarketplace from "@/pages/NFTMarketplace";
+import MintNFT from "@/pages/MintNFT";
+import NFTDetail from "@/pages/NFTDetail";
+import NFTProfile from "@/pages/NFTProfile";
+import NFTActivity from "@/pages/NFTActivity";
 
 function Router() {
   return (
@@ -23,6 +30,13 @@ function Router() {
       <Route path="/create-presale" component={CreatePresale} />
       <Route path="/presales" component={ActivePresales} />
       <Route path="/my-tokens" component={MyTokens} />
+      <Route path="/nft/collections" component={NFTCollections} />
+      <Route path="/nft/collections/:id" component={CollectionDetail} />
+      <Route path="/nft/marketplace" component={NFTMarketplace} />
+      <Route path="/nft/mint" component={MintNFT} />
+      <Route path="/nft/:address/:tokenId" component={NFTDetail} />
+      <Route path="/nft/profile" component={NFTProfile} />
+      <Route path="/nft/activity" component={NFTActivity} />
       <Route component={NotFound} />
     </Switch>
   );

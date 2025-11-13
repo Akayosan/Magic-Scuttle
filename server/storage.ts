@@ -53,6 +53,7 @@ export interface IStorage {
   getNFTItemByToken(contractAddress: string, tokenId: string): Promise<NFTItem | null>;
   getNFTItemsByCollection(collectionId: string): Promise<NFTItem[]>;
   getNFTItemsByOwner(owner: string): Promise<NFTItem[]>;
+  getAllNFTItems(): Promise<NFTItem[]>;
   updateNFTItem(id: string, updates: Partial<NFTItem>): Promise<NFTItem | null>;
   
   // NFT Listing operations
@@ -248,6 +249,11 @@ export class DatabaseStorage implements IStorage {
   async getNFTItemsByOwner(owner: string): Promise<NFTItem[]> {
     return await db.select().from(nftItems)
       .where(sql`lower(${nftItems.owner}) = lower(${owner})`)
+      .orderBy(desc(nftItems.mintedAt));
+  }
+
+  async getAllNFTItems(): Promise<NFTItem[]> {
+    return await db.select().from(nftItems)
       .orderBy(desc(nftItems.mintedAt));
   }
 

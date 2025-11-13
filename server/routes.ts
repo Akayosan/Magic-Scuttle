@@ -343,6 +343,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all NFT items
+  app.get("/api/nft/items", async (req, res) => {
+    try {
+      const items = await storage.getAllNFTItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch NFTs" });
+    }
+  });
+
   // Get NFT item by ID
   app.get("/api/nft/items/:id", async (req, res) => {
     try {
@@ -357,7 +367,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get NFT by contract address and token ID
+  // Get NFTs by collection (literal path - must come before parameterized routes)
+  app.get("/api/nft/items/collection/:collectionId", async (req, res) => {
+    try {
+      const items = await storage.getNFTItemsByCollection(req.params.collectionId);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch NFTs" });
+    }
+  });
+
+  // Get NFTs by owner (literal path - must come before parameterized routes)
+  app.get("/api/nft/items/owner/:owner", async (req, res) => {
+    try {
+      const items = await storage.getNFTItemsByOwner(req.params.owner);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch NFTs" });
+    }
+  });
+
+  // Get NFT by contract address and token ID (parameterized - must come AFTER literal paths)
   app.get("/api/nft/items/:address/:tokenId", async (req, res) => {
     try {
       const item = await storage.getNFTItemByToken(req.params.address, req.params.tokenId);
@@ -368,26 +398,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch NFT" });
-    }
-  });
-
-  // Get NFTs by collection
-  app.get("/api/nft/items/collection/:collectionId", async (req, res) => {
-    try {
-      const items = await storage.getNFTItemsByCollection(req.params.collectionId);
-      res.json(items);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch NFTs" });
-    }
-  });
-
-  // Get NFTs by owner
-  app.get("/api/nft/items/owner/:owner", async (req, res) => {
-    try {
-      const items = await storage.getNFTItemsByOwner(req.params.owner);
-      res.json(items);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch NFTs" });
     }
   });
 

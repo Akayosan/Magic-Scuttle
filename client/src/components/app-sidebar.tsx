@@ -1,4 +1,4 @@
-import { Home, Coins, TrendingUp, Wallet, FileText } from "lucide-react";
+import { Home, Coins, TrendingUp, Wallet, FileText, Image, ShoppingBag, Sparkles, User, Activity } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -12,7 +12,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 
-const menuItems = [
+const tokenMenuItems = [
   {
     title: "Dashboard",
     url: "/",
@@ -40,6 +40,34 @@ const menuItems = [
   },
 ];
 
+const nftMenuItems = [
+  {
+    title: "Collections",
+    url: "/nft/collections",
+    icon: Image,
+  },
+  {
+    title: "Marketplace",
+    url: "/nft/marketplace",
+    icon: ShoppingBag,
+  },
+  {
+    title: "Mint NFT",
+    url: "/nft/mint",
+    icon: Sparkles,
+  },
+  {
+    title: "My NFTs",
+    url: "/nft/profile",
+    icon: User,
+  },
+  {
+    title: "Activity",
+    url: "/nft/activity",
+    icon: Activity,
+  },
+];
+
 export function AppSidebar() {
   const [location] = useLocation();
 
@@ -62,15 +90,37 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Tokens & Presales</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {tokenMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={location === item.url}
                     data-testid={`link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <Link href={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>NFT Marketplace</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {nftMenuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location === item.url}
+                    data-testid={`link-nft-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />

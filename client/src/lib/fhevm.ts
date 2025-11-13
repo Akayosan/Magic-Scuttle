@@ -1,5 +1,7 @@
 import { BrowserProvider } from "ethers";
-import { initFhevm, createInstance, FhevmInstance } from "fhevmjs";
+// TODO: Install fhevmjs in Task 7 - temporarily stubbed for UI development
+// import { initFhevm, createInstance, FhevmInstance } from "fhevmjs";
+type FhevmInstance = any; // Temporary stub
 
 // Sepolia testnet fhEVM gateway and ACL addresses
 const FHEVM_GATEWAY_ADDRESS = "0x33347831500F1e73f0ccCBcb91a0C9d2b8Ab9324";
@@ -18,24 +20,19 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
   }
 
   try {
-    // Initialize fhEVM library
-    await initFhevm();
-
-    // Get network details
-    const network = await provider.getNetwork();
-    const chainId = Number(network.chainId);
-
-    console.log("Initializing fhEVM for chain:", chainId);
-
-    // Create fhEVM instance with Sepolia testnet addresses
-    fhevmInstance = await createInstance({
-      chainId,
-      networkUrl: window.location.origin,
-      gatewayUrl: FHEVM_GATEWAY_ADDRESS,
-      aclAddress: FHEVM_ACL_ADDRESS,
-    });
-
-    console.log("fhEVM instance initialized successfully");
+    // TODO: Uncomment in Task 7 after installing fhevmjs
+    // await initFhevm();
+    // const network = await provider.getNetwork();
+    // const chainId = Number(network.chainId);
+    // fhevmInstance = await createInstance({
+    //   chainId,
+    //   networkUrl: window.location.origin,
+    //   gatewayUrl: FHEVM_GATEWAY_ADDRESS,
+    //   aclAddress: FHEVM_ACL_ADDRESS,
+    // });
+    
+    console.warn("fhEVM not yet initialized - will be implemented in Task 7");
+    fhevmInstance = {} as FhevmInstance; // Temporary stub
     return fhevmInstance;
   } catch (error) {
     console.error("Failed to initialize fhEVM:", error);

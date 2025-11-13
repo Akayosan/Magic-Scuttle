@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { sql, relations } from "drizzle-orm";
 import { pgTable, text, varchar, boolean, bigint, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -98,6 +98,167 @@ export interface TransactionState {
   hash?: string;
   error?: string;
 }
+
+// NFT Collection Table
+export const nftCollections = pgTable("nft_collections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contractAddress: text("contract_address").notNull().unique(),
+  name: text("name").notNull(),
+  symbol: text("symbol").notNull(),
+  creator: text("creator").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  bannerUrl: text("banner_url"),
+  royaltyRecipient: text("royalty_recipient"),
+  royaltyBasisPoints: integer("royalty_basis_points").default(0),
+  totalSupply: integer("total_supply").notNull().default(0),
+  floorPrice: text("floor_price"),
+  volume: text("volume").default("0"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
+export const insertNFTCollectionSchema = createInsertSchema(nftCollections).omit({
+  id: true,
+  totalSupply: true,
+  floorPrice: true,
+  volume: true,
+  createdAt: true,
+});
+
+export type NFTCollection = typeof nftCollections.$inferSelect;
+export type InsertNFTCollection = z.infer<typeof insertNFTCollectionSchema>;
+
+// NFT Item Table
+export const nftItems = pgTable("nft_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  collectionId: varchar("collection_id").notNull(),
+  tokenId: text("token_id").notNull(),
+  contractAddress: text("contract_address").notNull(),
+  owner: text("owner").notNull(),
+  tokenURI: text("token_uri"),
+  imageUrl: text("image_url"),
+  name: text("name"),
+  description: text("description"),
+  hasEncryptedRarity: boolean("has_encrypted_rarity").default(false),
+  revealedRarity: integer("revealed_rarity"),
+  hasEncryptedAttributes: boolean("has_encrypted_attributes").default(false),
+  attributes: text("attributes"),
+  mintedAt: timestamp("minted_at").notNull().default(sql`now()`),
+});
+
+export const insertNFTItemSchema = createInsertSchema(nftItems).omit({
+  id: true,
+  revealedRarity: true,
+  mintedAt: true,
+});
+
+export type NFTItem = typeof nftItems.$inferSelect;
+export type InsertNFTItem = z.infer<typeof insertNFTItemSchema>;
+
+// NFT Listing Table
+export const nftListings = pgTable("nft_listings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nftId: varchar("nft_id").notNull(),
+  contractAddress: text("contract_address").notNull(),
+  tokenId: text("token_id").notNull(),
+  seller: text("seller").notNull(),
+  price: text("price").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  listingType: text("listing_type").notNull(),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertNFTListingSchema = createInsertSchema(nftListings).omit({
+  id: true,
+  isActive: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type NFTListing = typeof nftListings.$inferSelect;
+export type InsertNFTListing = z.infer<typeof insertNFTListingSchema>;
+
+// NFT Bid Table  
+export const nftBids = pgTable("nft_bids", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nftId: varchar("nft_id"),
+  contractAddress: text("contract_address").notNull(),
+  tokenId: text("token_id").notNull(),
+  bidder: text("bidder").notNull(),
+  amount: text("amount").notNull(),
+  bidType: text("bid_type").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
+export const insertNFTBidSchema = createInsertSchema(nftBids).omit({
+  id: true,
+  isActive: true,
+  createdAt: true,
+});
+
+export type NFTBid = typeof nftBids.$inferSelect;
+export type InsertNFTBid = z.infer<typeof insertNFTBidSchema>;
+
+// NFT Activity Table
+export const nftActivity = pgTable("nft_activity", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nftId: varchar("nft_id"),
+  contractAddress: text("contract_address").notNull(),
+  tokenId: text("token_id").notNull(),
+  activityType: text("activity_type").notNull(),
+  from: text("from"),
+  to: text("to"),
+  price: text("price"),
+  txHash: text("tx_hash").notNull(),
+  timestamp: timestamp("timestamp").notNull().default(sql`now()`),
+});
+
+export const insertNFTActivitySchema = createInsertSchema(nftActivity).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type NFTActivity = typeof nftActivity.$inferSelect;
+export type InsertNFTActivity = z.infer<typeof insertNFTActivitySchema>;
+
+// Database Relations
+export const nftCollectionsRelations = relations(nftCollections, ({ many }) => ({
+  items: many(nftItems),
+}));
+
+export const nftItemsRelations = relations(nftItems, ({ one, many }) => ({
+  collection: one(nftCollections, {
+    fields: [nftItems.collectionId],
+    references: [nftCollections.id],
+  }),
+  listings: many(nftListings),
+  bids: many(nftBids),
+  activities: many(nftActivity),
+}));
+
+export const nftListingsRelations = relations(nftListings, ({ one }) => ({
+  nft: one(nftItems, {
+    fields: [nftListings.nftId],
+    references: [nftItems.id],
+  }),
+}));
+
+export const nftBidsRelations = relations(nftBids, ({ one }) => ({
+  nft: one(nftItems, {
+    fields: [nftBids.nftId],
+    references: [nftItems.id],
+  }),
+}));
+
+export const nftActivityRelations = relations(nftActivity, ({ one }) => ({
+  nft: one(nftItems, {
+    fields: [nftActivity.nftId],
+    references: [nftItems.id],
+  }),
+}));
 
 // fhEVM Configuration for Sepolia
 export const FHEVM_CONFIG = {

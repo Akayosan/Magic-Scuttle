@@ -167,7 +167,7 @@ npx hardhat run scripts/deploy-nft.ts --network sepolia
 
 ### Mint NFT Real Integration ✅ (November 13, 2025)
 - Connected to deployed ConfidentialERC721 contract (0xeC4A...)
-- Wallet integration using useWallet hook
+- Wallet integration using useWallet hook from WalletContext
 - Two minting paths:
   - Basic mint: `contract.mint(tokenURI, { value })`
   - Encrypted mint: `contract.mintWithEncryptedRarity(tokenURI, encryptedRarity, proof)`
@@ -175,7 +175,12 @@ npx hardhat run scripts/deploy-nft.ts --network sepolia
 - Transaction flow with loading states and success notifications
 - Auto-redirect to profile after successful mint
 - Event parsing to extract minted tokenId
-- IPFS upload currently simulated (FileReader mock) - production needs Pinata/web3.storage
+- **Real IPFS Integration via Pinata API:**
+  - Image upload: `POST /api/ipfs/upload` (multipart/form-data)
+  - Metadata upload: `POST /api/ipfs/upload-metadata` (JSON)
+  - Returns permanent `ipfs://` CIDs
+  - Requires `PINATA_API_KEY` and `PINATA_SECRET_KEY` in Replit Secrets
+  - 10MB file size limit per upload
 
 ### Backend API Fully Implemented ✅
 All endpoints working and tested:

@@ -16,7 +16,7 @@ import { useLocation } from "wouter";
 
 export default function MintNFT() {
   const { toast } = useToast();
-  const { walletState, connectWallet } = useWallet();
+  const { walletState, provider, connectWallet } = useWallet();
   const { mintNFT, mintNFTWithEncryption, isLoading } = useNFTContract();
   const [, setLocation] = useLocation();
   
@@ -137,22 +137,26 @@ export default function MintNFT() {
 
       let tokenId: number | null = null;
 
-      if (encryptRarity && walletState.provider) {
+      if (!provider) {
+        throw new Error("Provider not available");
+      }
+
+      if (encryptRarity) {
         // Mint with encrypted rarity
         const fhevmInstance = await getFhevmInstance();
         tokenId = await mintNFTWithEncryption(
           CONTRACT_ADDRESSES.NFT,
-          walletState.provider,
+          provider,
           fhevmInstance,
           tokenURI,
           rarity,
           "0.001" // Mint price in ETH
         );
-      } else if (walletState.provider) {
+      } else {
         // Basic mint without encryption
         tokenId = await mintNFT(
           CONTRACT_ADDRESSES.NFT,
-          walletState.provider,
+          provider,
           tokenURI,
           "0.001" // Mint price in ETH
         );

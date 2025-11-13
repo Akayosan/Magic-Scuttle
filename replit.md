@@ -145,18 +145,53 @@ npx hardhat run scripts/deploy-nft.ts --network sepolia
 
 ## Recent Changes (November 2025)
 
-### NFT Contracts Completed ✅
-- Built production-ready ConfidentialERC721 and ConfidentialMarketplace
+### NFT Contracts Deployed to Sepolia ✅
+- Production-ready ConfidentialERC721: 0xeC4Aae6cf695110DA2a4De78F5018bB9d9d3D605
+- Production-ready ConfidentialMarketplace: 0xcb5593D3dF2d92ba2B723BFDcCB6e04482fE5aA4
 - Passed comprehensive architect security review
 - Implemented centralized payout system with fund-trapping protection
 - Added escrow mechanism for secure NFT/ETH trading
 - Full reentrancy protection and safe ETH transfer patterns
 
+### Dashboard Enhanced ✅ (November 13, 2025)
+- Added bilingual hero section (Indonesian/English) with Scuttle branding
+- Real-time statistics from backend API:
+  - Token count from `/api/tokens`
+  - Active presale count from `/api/presales`
+  - NFT collection count from `/api/nft/collections`
+  - NFT items count from `/api/nft/items`
+- "Tentang Scuttle" section with 3 feature cards (Privacy, Security, Speed)
+- Purple/pink gradient theme with glassmorphism effects
+- Responsive design for mobile/desktop
+- Stats show 0 on fresh deployment (database empty) - expected behavior
+
+### Mint NFT Real Integration ✅ (November 13, 2025)
+- Connected to deployed ConfidentialERC721 contract (0xeC4A...)
+- Wallet integration using useWallet hook
+- Two minting paths:
+  - Basic mint: `contract.mint(tokenURI, { value })`
+  - Encrypted mint: `contract.mintWithEncryptedRarity(tokenURI, encryptedRarity, proof)`
+- fhevmjs integration for encrypted rarity (euint128)
+- Transaction flow with loading states and success notifications
+- Auto-redirect to profile after successful mint
+- Event parsing to extract minted tokenId
+- IPFS upload currently simulated (FileReader mock) - production needs Pinata/web3.storage
+
+### Backend API Fully Implemented ✅
+All endpoints working and tested:
+- Tokens: `/api/tokens` (GET, POST, GET by ID/address/creator)
+- Presales: `/api/presales` (GET all, GET active, POST, PATCH, DELETE)
+- NFT Collections: `/api/nft/collections` (GET all, POST, GET by ID/address/creator)
+- NFT Items: `/api/nft/items` (GET all, POST, GET by ID/collection/owner/tokenId)
+- NFT Listings: `/api/nft/listings` (GET all, POST, DELETE, GET by token/seller)
+- NFT Bids: `/api/nft/bids` (GET all, POST, DELETE, GET by token/bidder)
+- NFT Activity: `/api/nft/activity` (GET all, POST, GET by token/address)
+
 ### Next Steps
-- Extend database schema with NFT tables
-- Build NFT marketplace UI (Magic Eden style)
-- Integrate fhevmjs for encrypted NFT attributes
-- Deploy NFT contracts to Sepolia
+- Build NFT marketplace UI (Magic Eden style) - browse, list, buy flows
+- Integrate real IPFS upload (Pinata API or web3.storage)
+- Add wallet connection UI with MetaMask support
+- Implement NFT detail pages with encrypted attribute reveal
 
 ## GitHub Integration
 - Repository: `scuttlecorp/Scuttle`

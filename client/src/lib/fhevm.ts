@@ -22,7 +22,7 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
   try {
     console.log("🔧 Step 1: Initializing fhEVM WASM...");
     console.log("🌐 Gateway URL: https://relayer.testnet.zama.cloud");
-    console.log("📅 Code version: 2025-11-14-v4");
+    console.log("📅 Code version: 2025-11-14-v6-RELAYER");
     
     await initFhevm({
       tfheParams: '/tfhe_bg.wasm',
@@ -41,7 +41,8 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
       // OPTIONAL: Chain ID for deterministic network selection
       chainId: 11155111, // Sepolia testnet
       
-      // Gateway/Relayer URL (REQUIRED for encrypted operations)
+      // REQUIRED: Gateway URL for Sepolia
+      // Testing both URLs to see which one works
       gatewayUrl: 'https://relayer.testnet.zama.cloud',
     };
     

@@ -192,26 +192,46 @@ All endpoints working and tested:
 - NFT Bids: `/api/nft/bids` (GET all, POST, DELETE, GET by token/bidder)
 - NFT Activity: `/api/nft/activity` (GET all, POST, GET by token/address)
 
-### Latest Updates (November 14, 2025)
+### Latest Updates (November 14, 2025) - Production Ready ✅
 
 #### Navigation Reorganized ✅
-- NFT Marketplace section moved to top priority
+- NFT Marketplace section moved to top priority (user-requested)
 - Tokens & Presales section marked with "Soon" badge and disabled
 - Dashboard as standalone top item
 - Social media link added: X (Twitter) - https://x.com/Scuttlecorp
+- File: `client/src/components/app-sidebar.tsx`
 
-#### Homepage NFT Showcase ✅
+#### Homepage NFT Showcase ✅ (Architect Approved)
 - Featured NFT slider added to Dashboard (Magic Eden/OpenSea style)
 - Shows top 1-3 most recent NFTs with images
-- Embla Carousel integration with prev/next navigation
-- IPFS image display with automatic gateway conversion
-- Encrypted NFT badges for privacy-enabled items
-- Responsive design: 1 card (mobile), 2 cards (tablet), 3 cards (desktop)
+- **Embla Carousel Integration:**
+  - Non-loop mode (`loop: false`) for showcase
+  - Navigation buttons with proper initialization via `emblaApi.reInit()`
+  - Event listeners: init, select, reInit
+  - Auto-updates when NFT data changes
+- **Data Safety:**
+  - Filters invalid/undefined NFTs before rendering
+  - Safe array handling: `(nftItems || []).filter().slice()`
+  - Prevents malformed URLs and blank slides
+- **Features:**
+  - IPFS image display with automatic gateway conversion (ipfs:// → https://)
+  - Encrypted NFT badges for privacy-enabled items
+  - Responsive design: 1 card (mobile), 2 cards (tablet), 3 cards (desktop)
+  - Hover effects with glassmorphism
+  - Links to NFT detail pages: `/nft/${contractAddress}/${tokenId}`
+- **Edge Cases Handled:**
+  - Empty state (no NFTs): Section hidden
+  - Single NFT: Card shown, no navigation arrows
+  - Multiple NFTs: Full carousel with prev/next buttons
+  - Undefined data during query load
+- File: `client/src/pages/Dashboard.tsx`
 
-#### fhEVM Initialization Fixed ✅
+#### fhEVM Initialization Fixed ✅ (Architect Approved)
 - Fixed provider parameter missing in getFhevmInstance() call
-- MintNFT now properly initializes fhEVM with BrowserProvider
+- MintNFT now properly initializes fhEVM with BrowserProvider from WalletContext
+- Added null check for provider before attempting fhEVM operations
 - Encrypted rarity minting ready for production
+- File: `client/src/pages/MintNFT.tsx`
 
 ### Next Steps
 - Test real NFT minting on Sepolia with Pinata IPFS

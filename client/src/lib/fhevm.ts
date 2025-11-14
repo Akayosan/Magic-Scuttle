@@ -5,7 +5,7 @@ let fhevmInstance: FhevmInstance | null = null;
 
 /**
  * Initialize fhEVM instance for encrypted operations on Sepolia testnet
- * @param provider Ethers provider (not used but kept for API compatibility)
+ * @param provider Ethers BrowserProvider with EIP-1193 provider
  * @returns Initialized fhEVM instance
  */
 export async function getFhevmInstance(provider: BrowserProvider): Promise<FhevmInstance> {
@@ -26,12 +26,14 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
       aclContractAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
       kmsContractAddress: '0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC',
       
-      // OPTIONAL: Chain Configuration
+      // REQUIRED: Network Provider (EIP-1193 compatible)
+      network: (provider as any).provider, // BrowserProvider.provider is EIP-1193
+      
+      // OPTIONAL: Chain ID for deterministic network selection
       chainId: 11155111, // Sepolia testnet
       
-      // OPTIONAL: Network URLs
-      networkUrl: 'https://eth-sepolia.public.blastapi.io',
-      gatewayUrl: 'https://gateway.sepolia.zama.ai/',
+      // Gateway/Relayer URL (REQUIRED for encrypted operations)
+      gatewayUrl: 'https://relayer.testnet.zama.cloud',
     };
     
     console.log("Step 3: Creating fhEVM instance with config:", config);

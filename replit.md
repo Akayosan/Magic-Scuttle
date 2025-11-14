@@ -121,6 +121,7 @@ DATABASE_URL=<auto-configured>
 - Gateway Chain ID: 55815
 - ACL Contract: 0x687820221192C5B662b25367F70076A37bc79b6c
 - KMS Contract: 0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC
+- Gateway URL: https://relayer.testnet.zama.cloud
 
 ## Development
 

@@ -56,15 +56,19 @@ The platform is a full-stack dApp utilizing Solidity smart contracts, a React/Ty
 
 ## External Dependencies
 - **Blockchain:** Sepolia Testnet
-- **Encryption:** Zama's fhevm.js library for fhEVM v0.9 (utilizing `euint128` for all encrypted values).
+- **Encryption:** Zama's @zama-fhe/relayer-sdk v0.2.0+ (migrated from deprecated fhevmjs v0.6.2)
+  - Uses `euint128` for all encrypted values in smart contracts
 - **Smart Contract Development:** Hardhat, OpenZeppelin Contracts.
 - **Frontend Frameworks:** React, Vite, TailwindCSS, shadcn/ui.
 - **Backend Framework:** Express.js, Node.js.
 - **Database:** PostgreSQL (via Replit's managed service).
 - **IPFS Integration:** Pinata API for storing NFT images and metadata.
 - **Blockchain RPC:** BlastAPI for Sepolia RPC.
-- **Zama Services:**
-    - Zama Gateway: `https://gateway.sepolia.zama.ai/`
-    - Zama Relayer: `https://relayer.testnet.zama.cloud` (distinct from Gateway)
+- **Zama Services (FHEVM v0.9 Compatible):**
+    - Zama Relayer: `https://relayer.testnet.zama.cloud` (OFFICIAL)
     - ACL Contract: `0x687820221192C5B662b25367F70076A37bc79b6c`
     - KMS Contract: `0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC`
+    - Input Verifier: `0xbc91f3daD1A5F19F8390c400196e58073B6a0BC4`
+    - Decryption Verifier: `0xb6E160B1ff80D67Bfe90A85eE06Ce0A2613607D1`
+    - Input Verification Verifier: `0x7048C39f048125eDa9d678AEbaDfB22F7900a29F`
+    - Gateway Chain ID: 55815

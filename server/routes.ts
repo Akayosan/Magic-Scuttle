@@ -347,14 +347,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create NFT collection
   app.post("/api/nft/collections", async (req, res) => {
     try {
+      console.log("Create collection request body:", JSON.stringify(req.body, null, 2));
       const validatedData = insertNFTCollectionSchema.parse(req.body);
+      console.log("Validated data:", JSON.stringify(validatedData, null, 2));
       const collection = await storage.createNFTCollection(validatedData);
       res.json(collection);
     } catch (error: any) {
+      console.error("Collection creation error:", error);
       if (error.name === "ZodError") {
         res.status(400).json({ error: fromZodError(error).toString() });
       } else {
-        res.status(500).json({ error: "Failed to create NFT collection" });
+        res.status(500).json({ error: "Failed to create NFT collection", details: error.message });
       }
     }
   });

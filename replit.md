@@ -254,26 +254,41 @@ After WASM fix, new error: `Impossible to fetch public key: wrong gateway url`
    https://relayer.testnet.zama.cloud
    ```
 
-2. **Added network provider (EIP-1193) to configuration:**
+2. **Added network provider to configuration (attempted with BrowserProvider.provider):**
    ```typescript
-   const config = {
-     aclContractAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
-     kmsContractAddress: '0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC',
-     network: (provider as any).provider, // BrowserProvider.provider is EIP-1193
-     chainId: 11155111,
-     gatewayUrl: 'https://relayer.testnet.zama.cloud',
-   };
+   network: (provider as any).provider, // ❌ Returns empty object {}
    ```
 
+**Problem 4: Invalid EIP-1193 Provider**
+After gateway URL fix, new error: `invalid EIP-1193 provider (argument="ethereum", value={}, code=INVALID_ARGUMENT)`
+
+**Root Cause:**
+- BrowserProvider doesn't expose `.provider` property that returns the original EIP-1193 provider
+- `(provider as any).provider` returned empty object `{}` instead of valid provider
+- fhevmjs requires the raw EIP-1193 provider from wallet (window.ethereum)
+
+**Solution Applied:**
+**Use window.ethereum directly instead of extracting from BrowserProvider:**
+```typescript
+const config = {
+  aclContractAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
+  kmsContractAddress: '0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC',
+  network: window.ethereum, // ✅ Direct access to EIP-1193 provider
+  chainId: 11155111,
+  gatewayUrl: 'https://relayer.testnet.zama.cloud',
+};
+```
+
 **Impact:**
-- ✅ WASM files now served correctly with `Content-Type: application/wasm`
+- ✅ WASM files served correctly with `Content-Type: application/wasm`
+- ✅ Valid EIP-1193 provider passed to fhEVM
 - ✅ fhEVM instance initializes successfully on Sepolia
 - ✅ Console logs show all 4 initialization steps
 - ✅ Encrypted NFT minting ready for production
-- ✅ No more "magic word" or initialization errors
+- ✅ No more "magic word", "wrong gateway", or "invalid provider" errors
 
 **Files Modified:**
-- `client/src/lib/fhevm.ts` - Configuration and WASM paths
+- `client/src/lib/fhevm.ts` - Configuration, WASM paths, and EIP-1193 provider
 - `client/public/tfhe_bg.wasm` - TFHE cryptographic operations (new)
 - `client/public/kms_lib_bg.wasm` - KMS library (new)
 

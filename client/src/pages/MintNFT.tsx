@@ -13,6 +13,15 @@ import { useNFTContract } from "@/hooks/useNFTContract";
 import { getFhevmInstance } from "@/lib/fhevm";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+type NFTCollection = {
+  id: string;
+  name: string;
+  symbol: string;
+  contractAddress: string;
+};
 
 export default function MintNFT() {
   const { toast } = useToast();
@@ -28,6 +37,11 @@ export default function MintNFT() {
   const [encryptRarity, setEncryptRarity] = useState(false);
   const [encryptAttributes, setEncryptAttributes] = useState(false);
   const [rarity, setRarity] = useState<number>(1);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string>("");
+
+  const { data: collections } = useQuery<NFTCollection[]>({
+    queryKey: ["/api/nft/collections"],
+  });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -118,6 +132,15 @@ export default function MintNFT() {
       return;
     }
 
+    if (!selectedCollectionId) {
+      toast({
+        title: "Collection Required",
+        description: "Please select a collection for your NFT",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       toast({
         title: "Preparing NFT",
@@ -165,22 +188,66 @@ export default function MintNFT() {
       if (tokenId !== null) {
         toast({
           title: "NFT Minted Successfully!",
-          description: `Your NFT #${tokenId} has been minted on Sepolia testnet`,
+          description: `Your NFT #${tokenId} has been minted on Sepolia testnet. Saving to database...`,
         });
 
-        // Reset form
-        setImageFile(null);
-        setImagePreview(null);
-        setName("");
-        setDescription("");
-        setAttributes([]);
-        setEncryptRarity(false);
-        setEncryptAttributes(false);
+        // Save NFT to database
+        try {
+          const response = await fetch('/api/nft/items', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              collectionId: selectedCollectionId,
+              tokenId: tokenId.toString(),
+              contractAddress: CONTRACT_ADDRESSES.NFT,
+              owner: walletState.address,
+              tokenURI: tokenURI,
+              imageUrl: imageURI,
+              name,
+              description: description || undefined,
+              hasEncryptedRarity: encryptRarity,
+              hasEncryptedAttributes: encryptAttributes,
+              attributes: attributes.filter(a => a.trait_type && a.value).length > 0 
+                ? JSON.stringify(attributes.filter(a => a.trait_type && a.value))
+                : undefined,
+            }),
+          });
 
-        // Navigate to profile after 2 seconds
-        setTimeout(() => {
-          setLocation("/nft/profile");
-        }, 2000);
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to save NFT to database");
+          }
+
+          toast({
+            title: "NFT Saved!",
+            description: "Your NFT has been saved and will appear in My NFTs",
+          });
+
+          // Reset form
+          setImageFile(null);
+          setImagePreview(null);
+          setName("");
+          setDescription("");
+          setAttributes([]);
+          setEncryptRarity(false);
+          setEncryptAttributes(false);
+          setSelectedCollectionId("");
+
+          // Navigate to profile after 2 seconds
+          setTimeout(() => {
+            setLocation("/nft/profile");
+          }, 2000);
+        } catch (dbError: any) {
+          console.error("Database save error:", dbError);
+          toast({
+            title: "Warning: NFT Minted but Not Saved",
+            description: dbError.message || `Your NFT #${tokenId} was minted on-chain but failed to save to database. Please try again or contact support.`,
+            variant: "destructive",
+          });
+          // Don't reset form so user can retry
+        }
       }
     } catch (error: any) {
       toast({
@@ -245,6 +312,44 @@ export default function MintNFT() {
                   </Button>
                 </div>
               )}
+            </Card>
+
+            {/* Collection Selection */}
+            <Card className="p-6">
+              <div className="space-y-2">
+                <Label htmlFor="collection">Collection *</Label>
+                <Select 
+                  value={selectedCollectionId} 
+                  onValueChange={setSelectedCollectionId}
+                  disabled={!collections || collections.length === 0}
+                >
+                  <SelectTrigger id="collection" data-testid="select-collection">
+                    <SelectValue placeholder={
+                      !collections ? "Loading collections..." : 
+                      collections.length === 0 ? "No collections available" :
+                      "Select a collection"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {collections && collections.length > 0 ? (
+                      collections.map((collection) => (
+                        <SelectItem key={collection.id} value={collection.id}>
+                          {collection.name} ({collection.symbol})
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-collections" disabled>
+                        No collections available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {!collections || collections.length === 0 
+                    ? "Please create a collection first before minting NFTs."
+                    : "Select the collection for your NFT."}
+                </p>
+              </div>
             </Card>
 
             {/* Basic Info */}
@@ -329,37 +434,55 @@ export default function MintNFT() {
             <Card className="p-6">
               <Label className="text-sm font-medium mb-4 block">Privacy Settings</Label>
               <div className="space-y-4">
-                <div className="flex items-center justify-between opacity-50">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-muted-foreground" />
-                    <Label htmlFor="encrypt-rarity" className="cursor-not-allowed">
-                      Encrypt Rarity (Coming Soon)
+                    <Lock className="w-4 h-4 text-primary" />
+                    <Label htmlFor="encrypt-rarity" className="cursor-pointer">
+                      Encrypt Rarity
                     </Label>
                   </div>
                   <Switch
                     id="encrypt-rarity"
-                    checked={false}
-                    disabled
+                    checked={encryptRarity}
+                    onCheckedChange={setEncryptRarity}
                     data-testid="switch-encrypt-rarity"
                   />
                 </div>
 
-                <div className="flex items-center justify-between opacity-50">
+                {encryptRarity && (
+                  <div>
+                    <Label htmlFor="rarity">Rarity Level (1-100)</Label>
+                    <Input
+                      id="rarity"
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={rarity}
+                      onChange={(e) => setRarity(parseInt(e.target.value) || 1)}
+                      placeholder="Enter rarity level"
+                      data-testid="input-rarity"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Higher numbers = more rare
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-muted-foreground" />
-                    <Label htmlFor="encrypt-attrs" className="cursor-not-allowed">
-                      Encrypt Attributes (Coming Soon)
+                    <Lock className="w-4 h-4 text-primary" />
+                    <Label htmlFor="encrypt-attrs" className="cursor-pointer">
+                      Encrypt Attributes
                     </Label>
                   </div>
                   <Switch
                     id="encrypt-attrs"
-                    checked={false}
-                    disabled
+                    checked={encryptAttributes}
+                    onCheckedChange={setEncryptAttributes}
                     data-testid="switch-encrypt-attributes"
                   />
                 </div>
               </div>
-
             </Card>
           </div>
 

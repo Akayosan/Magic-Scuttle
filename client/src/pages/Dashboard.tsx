@@ -1,4 +1,4 @@
-import { Coins, TrendingUp, Users, Wallet, Image, ShoppingBag, Sparkles, Shield, Lock, Zap, Rocket, Star, ArrowRight } from "lucide-react";
+import { Coins, TrendingUp, Users, Wallet, Image, ShoppingBag, Sparkles, Shield, Lock, Zap, Rocket, Star, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { useWallet } from "@/contexts/WalletContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,9 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import useEmblaCarousel from 'embla-carousel-react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function Dashboard() {
   const { walletState } = useWallet();
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'start' });
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
   
   // Fetch real data from backend
   const { data: tokens } = useQuery({ 
@@ -39,6 +44,40 @@ export default function Dashboard() {
   }).length || 0;
   const collectionCount = nftCollections?.length || 0;
   const nftItemCount = nftItems?.length || 0;
+
+  // Featured NFTs - top 3 most recent with valid data
+  const featuredNFTs = (nftItems || [])
+    .filter((nft: any) => 
+      nft && nft.contractAddress && nft.tokenId !== undefined && nft.tokenId !== null
+    )
+    .slice(0, 3);
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    emblaApi.on('init', onSelect);
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    
+    // Force reInit to trigger event handlers and set initial state
+    emblaApi.reInit();
+  }, [emblaApi, onSelect]);
+
+  // Update navigation state when featured NFTs change
+  useEffect(() => {
+    if (emblaApi && featuredNFTs.length > 0) {
+      emblaApi.reInit();
+    }
+  }, [emblaApi, featuredNFTs.length]);
 
   if (!walletState.isConnected) {
     return (
@@ -109,6 +148,115 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Featured NFTs Showcase */}
+      {featuredNFTs.length > 0 && (
+        <div className="border-b bg-gradient-to-b from-background/50 to-background">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="font-display text-3xl font-bold mb-2" data-testid="text-featured-nfts-title">
+                  NFT Unggulan
+                </h2>
+                <p className="text-muted-foreground" data-testid="text-featured-nfts-subtitle">
+                  Jelajahi koleksi NFT teratas dengan atribut terenkripsi
+                </p>
+              </div>
+              <Link href="/nft/marketplace">
+                <Button variant="outline" className="gap-2" data-testid="button-view-all-nfts">
+                  Lihat Semua
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="relative">
+              <div className="overflow-hidden" ref={emblaRef}>
+                <div className="flex gap-6">
+                  {featuredNFTs.map((nft: any) => (
+                    <div key={nft.id} className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%]" data-testid={`featured-nft-${nft.id}`}>
+                      <Card className="overflow-hidden hover-elevate transition-all group cursor-pointer border-primary/20">
+                        <Link href={`/nft/${nft.contractAddress}/${nft.tokenId}`}>
+                          <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+                            {nft.imageUrl ? (
+                              <img 
+                                src={nft.imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}
+                                alt={nft.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                data-testid={`img-nft-${nft.id}`}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Sparkles className="w-16 h-16 text-muted-foreground/20" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            {nft.hasEncryptedRarity && (
+                              <Badge className="absolute top-3 right-3 bg-gradient-to-r from-purple-500 to-pink-500 border-0 text-white">
+                                <Lock className="w-3 h-3 mr-1" />
+                                Encrypted
+                              </Badge>
+                            )}
+                          </div>
+                          <CardContent className="p-5">
+                            <div className="space-y-3">
+                              <div>
+                                <h3 className="font-display text-xl font-semibold mb-1 truncate" data-testid={`text-nft-name-${nft.id}`}>
+                                  {nft.name}
+                                </h3>
+                                <p className="text-sm text-muted-foreground truncate" data-testid={`text-nft-collection-${nft.id}`}>
+                                  Token #{nft.tokenId}
+                                </p>
+                              </div>
+                              <div className="flex items-center justify-between pt-2 border-t">
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Owner</p>
+                                  <p className="font-mono text-sm font-medium" data-testid={`text-nft-owner-${nft.id}`}>
+                                    {nft.owner.slice(0, 6)}...{nft.owner.slice(-4)}
+                                  </p>
+                                </div>
+                                <Button size="sm" variant="outline" className="gap-1">
+                                  <ArrowRight className="w-3 h-3" />
+                                  Detail
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Link>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {featuredNFTs.length > 1 && emblaApi && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={scrollPrev}
+                    disabled={!canScrollPrev}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 rounded-full bg-background/80 backdrop-blur shadow-lg border-primary/20 disabled:opacity-30"
+                    data-testid="button-slider-prev"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={scrollNext}
+                    disabled={!canScrollNext}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 rounded-full bg-background/80 backdrop-blur shadow-lg border-primary/20 disabled:opacity-30"
+                    data-testid="button-slider-next"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="p-6 space-y-8">
         {/* Stats Overview */}

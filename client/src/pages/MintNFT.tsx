@@ -143,7 +143,7 @@ export default function MintNFT() {
 
       if (encryptRarity) {
         // Mint with encrypted rarity
-        const fhevmInstance = await getFhevmInstance();
+        const fhevmInstance = await getFhevmInstance(provider);
         tokenId = await mintNFTWithEncryption(
           CONTRACT_ADDRESSES.NFT,
           provider,

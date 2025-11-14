@@ -192,11 +192,32 @@ All endpoints working and tested:
 - NFT Bids: `/api/nft/bids` (GET all, POST, DELETE, GET by token/bidder)
 - NFT Activity: `/api/nft/activity` (GET all, POST, GET by token/address)
 
+### Latest Updates (November 14, 2025)
+
+#### Navigation Reorganized ✅
+- NFT Marketplace section moved to top priority
+- Tokens & Presales section marked with "Soon" badge and disabled
+- Dashboard as standalone top item
+- Social media link added: X (Twitter) - https://x.com/Scuttlecorp
+
+#### Homepage NFT Showcase ✅
+- Featured NFT slider added to Dashboard (Magic Eden/OpenSea style)
+- Shows top 1-3 most recent NFTs with images
+- Embla Carousel integration with prev/next navigation
+- IPFS image display with automatic gateway conversion
+- Encrypted NFT badges for privacy-enabled items
+- Responsive design: 1 card (mobile), 2 cards (tablet), 3 cards (desktop)
+
+#### fhEVM Initialization Fixed ✅
+- Fixed provider parameter missing in getFhevmInstance() call
+- MintNFT now properly initializes fhEVM with BrowserProvider
+- Encrypted rarity minting ready for production
+
 ### Next Steps
-- Build NFT marketplace UI (Magic Eden style) - browse, list, buy flows
-- Integrate real IPFS upload (Pinata API or web3.storage)
-- Add wallet connection UI with MetaMask support
+- Test real NFT minting on Sepolia with Pinata IPFS
+- Add NFT marketplace trading features (listings, offers, auctions)
 - Implement NFT detail pages with encrypted attribute reveal
+- Build collection pages with filtering and sorting
 
 ## GitHub Integration
 - Repository: `scuttlecorp/Scuttle`

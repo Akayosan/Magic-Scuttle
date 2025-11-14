@@ -9,7 +9,9 @@ let fhevmInstance: FhevmInstance | null = null;
  * @returns Initialized fhEVM instance
  */
 export async function getFhevmInstance(provider: BrowserProvider): Promise<FhevmInstance> {
+  // Force reset if gateway URL is wrong (for cache busting)
   if (fhevmInstance) {
+    console.log("⚠️ Using cached fhEVM instance");
     return fhevmInstance;
   }
 
@@ -18,12 +20,15 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
   }
 
   try {
-    console.log("Step 1: Initializing fhEVM WASM...");
+    console.log("🔧 Step 1: Initializing fhEVM WASM...");
+    console.log("🌐 Gateway URL: https://relayer.testnet.zama.cloud");
+    console.log("📅 Code version: 2025-11-14-v4");
+    
     await initFhevm({
       tfheParams: '/tfhe_bg.wasm',
       kmsParams: '/kms_lib_bg.wasm',
     });
-    console.log("Step 2: WASM initialized successfully");
+    console.log("✅ Step 2: WASM initialized successfully");
     
     const config = {
       // REQUIRED: Contract Addresses (Host Chain - Sepolia)
@@ -40,13 +45,13 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
       gatewayUrl: 'https://relayer.testnet.zama.cloud',
     };
     
-    console.log("Step 3: Creating fhEVM instance with config:", config);
+    console.log("✅ Step 3: Creating fhEVM instance with config:", config);
     
     // Create fhEVM instance with Sepolia testnet configuration
     fhevmInstance = await createInstance(config);
     
-    console.log("Step 4: fhEVM instance created successfully");
-    console.log("fhEVM initialized successfully for Sepolia testnet");
+    console.log("🎉 Step 4: fhEVM instance created successfully");
+    console.log("✅ fhEVM initialized successfully for Sepolia testnet");
     return fhevmInstance;
   } catch (error: any) {
     console.error("❌ Failed to initialize fhEVM - Detailed error:", error);

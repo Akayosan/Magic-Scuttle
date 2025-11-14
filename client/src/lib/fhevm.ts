@@ -5,12 +5,16 @@ let fhevmInstance: FhevmInstance | null = null;
 
 /**
  * Initialize fhEVM instance for encrypted operations on Sepolia testnet
- * @param provider Ethers BrowserProvider with EIP-1193 provider
+ * @param provider Ethers BrowserProvider (not used, but kept for API compatibility)
  * @returns Initialized fhEVM instance
  */
 export async function getFhevmInstance(provider: BrowserProvider): Promise<FhevmInstance> {
   if (fhevmInstance) {
     return fhevmInstance;
+  }
+
+  if (!window.ethereum) {
+    throw new Error("MetaMask or Web3 wallet not found. Please install a Web3 wallet to use encrypted features.");
   }
 
   try {
@@ -27,7 +31,7 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
       kmsContractAddress: '0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC',
       
       // REQUIRED: Network Provider (EIP-1193 compatible)
-      network: (provider as any).provider, // BrowserProvider.provider is EIP-1193
+      network: window.ethereum, // Use window.ethereum directly (EIP-1193)
       
       // OPTIONAL: Chain ID for deterministic network selection
       chainId: 11155111, // Sepolia testnet
@@ -97,4 +101,10 @@ export async function requestDecryption(
 export function resetFhevmInstance() {
   fhevmInstance = null;
   console.log("fhEVM instance reset");
+}
+
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
 }

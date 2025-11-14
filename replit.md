@@ -194,6 +194,35 @@ All endpoints working and tested:
 
 ### Latest Updates (November 14, 2025) - Production Ready ✅
 
+#### fhEVM Initialization Fixed ✅ (November 14, 2025)
+**Problem:** Users experienced "Failed to initialize fhEVM instance" error when minting NFTs with encrypted rarity.
+
+**Root Cause:** Missing required `kmsContractAddress` parameter in fhevmjs v0.6.2 configuration.
+
+**Solution Applied:**
+- Updated `client/src/lib/fhevm.ts` with correct configuration:
+  ```typescript
+  {
+    // REQUIRED parameters
+    aclContractAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
+    kmsContractAddress: '0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC',
+    
+    // OPTIONAL parameters
+    chainId: 11155111,
+    networkUrl: 'https://eth-sepolia.public.blastapi.io',
+    gatewayUrl: 'https://gateway.sepolia.zama.ai/',
+  }
+  ```
+- Changed `aclAddress` → `aclContractAddress` (correct property name per fhevmjs API)
+- Added detailed step-by-step console logging for debugging
+- Enhanced error messages to show actual failure reason
+
+**Impact:**
+- ✅ Encrypted NFT minting now works correctly
+- ✅ fhEVM instance initializes successfully on Sepolia
+- ✅ Console logs show all 4 initialization steps
+- ✅ No more "Failed to initialize fhEVM instance" errors
+
 #### Navigation Reorganized ✅
 - NFT Marketplace section moved to top priority (user-requested)
 - Tokens & Presales section marked with "Soon" badge and disabled

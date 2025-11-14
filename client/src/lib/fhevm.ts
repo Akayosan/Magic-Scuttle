@@ -14,27 +14,37 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
   }
 
   try {
-    // Initialize WASM for cryptographic operations
+    console.log("Step 1: Initializing fhEVM WASM...");
     await initFhevm();
+    console.log("Step 2: WASM initialized successfully");
     
-    // Create fhEVM instance with Sepolia testnet configuration
-    fhevmInstance = await createInstance({
-      // Chain Configuration
+    const config = {
+      // REQUIRED: Contract Addresses (Host Chain - Sepolia)
+      aclContractAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
+      kmsContractAddress: '0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC',
+      
+      // OPTIONAL: Chain Configuration
       chainId: 11155111, // Sepolia testnet
       
-      // Network URLs
+      // OPTIONAL: Network URLs
       networkUrl: 'https://eth-sepolia.public.blastapi.io',
       gatewayUrl: 'https://gateway.sepolia.zama.ai/',
-      
-      // Contract Addresses (Host Chain - Sepolia)
-      aclAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
-    });
+    };
     
+    console.log("Step 3: Creating fhEVM instance with config:", config);
+    
+    // Create fhEVM instance with Sepolia testnet configuration
+    fhevmInstance = await createInstance(config);
+    
+    console.log("Step 4: fhEVM instance created successfully");
     console.log("fhEVM initialized successfully for Sepolia testnet");
     return fhevmInstance;
-  } catch (error) {
-    console.error("Failed to initialize fhEVM:", error);
-    throw new Error("Failed to initialize fhEVM instance");
+  } catch (error: any) {
+    console.error("❌ Failed to initialize fhEVM - Detailed error:", error);
+    console.error("Error name:", error?.name);
+    console.error("Error message:", error?.message);
+    console.error("Error stack:", error?.stack);
+    throw new Error(`Failed to initialize fhEVM instance: ${error?.message || 'Unknown error'}`);
   }
 }
 

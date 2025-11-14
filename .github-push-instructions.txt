@@ -1,0 +1,59 @@
+================================================================================
+  MAGIC SCUTTLE - INSTRUKSI UPLOAD KE GITHUB
+================================================================================
+
+Repository: https://github.com/Akayosan/Magic-Scuttle
+
+LANGKAH-LANGKAH:
+----------------
+
+1. Buka Tab "Shell" di Replit (bukan tab Tools ini)
+
+2. Copy-paste dan jalankan command berikut SATU PER SATU:
+
+   # Step 1: Hapus lock files
+   rm -f .git/*.lock .git/index.lock .git/config.lock
+
+   # Step 2: Configure git user
+   git config user.email "magic-scuttle@replit.com"
+   git config user.name "Magic Scuttle"
+
+   # Step 3: Add semua perubahan
+   git add -A
+
+   # Step 4: Commit dengan message lengkap
+   git commit -m "feat: Complete Magic Scuttle NFT marketplace with FHE
+
+- Implement NFT marketplace with encrypted metadata using Zama fhEVM
+- Add comprehensive collection management system
+- Fix NFT persistence: minted NFTs now save to database
+- Add collection selector to Mint NFT page
+- Deploy all smart contracts to Sepolia testnet
+- Add comprehensive README.md with contract addresses"
+
+   # Step 5: Set GitHub remote (ganti TOKEN dengan token Anda)
+   git remote set-url origin https://Akayosan:${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/Akayosan/Magic-Scuttle.git 2>/dev/null || \
+   git remote add origin https://Akayosan:${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/Akayosan/Magic-Scuttle.git
+
+   # Step 6: Push ke GitHub
+   git push -u origin main --force
+
+ATAU GUNAKAN SATU COMMAND INI:
+-------------------------------
+
+bash -c 'rm -f .git/*.lock .git/*.lock; git config user.email "magic-scuttle@replit.com"; git config user.name "Magic Scuttle"; git add -A; git commit -m "feat: Complete Magic Scuttle NFT marketplace with FHE"; git remote set-url origin https://Akayosan:${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/Akayosan/Magic-Scuttle.git 2>/dev/null || git remote add origin https://Akayosan:${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/Akayosan/Magic-Scuttle.git; git push -u origin main --force'
+
+CATATAN:
+--------
+- Token ${GITHUB_PERSONAL_ACCESS_TOKEN} sudah tersimpan di Secrets
+- Command di atas akan otomatis menggunakan token tersebut
+- Jika ada error, coba jalankan satu per satu
+- Gunakan --force untuk overwrite jika repository sudah ada
+
+SETELAH BERHASIL:
+-----------------
+1. Buka https://github.com/Akayosan/Magic-Scuttle
+2. Refresh halaman untuk melihat perubahan
+3. Check README.md untuk dokumentasi lengkap
+
+================================================================================

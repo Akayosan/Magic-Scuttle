@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "magic-scuttle",
+  "builds": [
+    {
+      "src": "client/**/*",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/client"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://your-backend-url.com/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_CONTRACT_TOKEN": "@contract_token",
+    "VITE_CONTRACT_PRESALE": "@contract_presale",
+    "VITE_CONTRACT_NFT": "@contract_nft",
+    "VITE_CONTRACT_MARKETPLACE": "@contract_marketplace"
+  }
+}

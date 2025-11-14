@@ -241,6 +241,30 @@ After config fix, new error appeared: `WebAssembly.instantiate(): expected magic
    });
    ```
 
+**Problem 3: Wrong Gateway URL**
+After WASM fix, new error: `Impossible to fetch public key: wrong gateway url`
+
+**Root Cause:**
+- Incorrect gateway URL: `https://gateway.sepolia.zama.ai/`
+- Missing network provider in createInstance() configuration
+
+**Solution Applied:**
+1. **Updated gateway URL to official Zama relayer:**
+   ```
+   https://relayer.testnet.zama.cloud
+   ```
+
+2. **Added network provider (EIP-1193) to configuration:**
+   ```typescript
+   const config = {
+     aclContractAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
+     kmsContractAddress: '0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC',
+     network: (provider as any).provider, // BrowserProvider.provider is EIP-1193
+     chainId: 11155111,
+     gatewayUrl: 'https://relayer.testnet.zama.cloud',
+   };
+   ```
+
 **Impact:**
 - ✅ WASM files now served correctly with `Content-Type: application/wasm`
 - ✅ fhEVM instance initializes successfully on Sepolia

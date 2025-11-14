@@ -20,12 +20,13 @@ drizzle/
 .env
 .env.*
 
-# Smart contracts
+# Smart contracts (ABIs are in client/src/abis/)
 contracts/
 scripts/
 artifacts/
 cache/
 typechain-types/
+hardhat.config.ts
 
 # Development files
 .replit

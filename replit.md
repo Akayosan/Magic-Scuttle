@@ -3,6 +3,18 @@
 ## Overview
 Magic Scuttle is a full-stack decentralized application built to leverage Zama's fhEVM for privacy-preserving operations on the Sepolia testnet. Its primary purpose is to enable confidential DeFi activities, including NFT marketplace with listing/trading functionality, user profiles showing owned NFTs, collection creation, and NFT minting. The project aims to provide a secure and private environment for digital asset management, inspired by leading platforms like Magic Eden and OpenSea.
 
+## Deployment Status
+**Production URLs:**
+- **Frontend (Vercel)**: https://magicscuttle-pan908j3r-akayosans-projects.vercel.app ✅ LIVE
+- **Backend (Replit)**: https://magic-scuttle.replit.app ✅ RUNNING
+- **GitHub Repository**: https://github.com/Akayosan/Magic-Scuttle
+
+**Deployment Architecture:**
+- Frontend deployed to Vercel CDN (global edge network)
+- Backend API remains on Replit (Express.js + PostgreSQL)
+- All `/api/*` calls from Vercel automatically proxied to Replit backend
+- Smart contracts deployed to Sepolia testnet
+
 ## User Preferences
 - **Coding Style:** TypeScript-first, functional where possible, comprehensive error handling
 - **Design:** Magic Eden/OpenSea inspired - purple/pink gradients, dark theme, glassmorphism

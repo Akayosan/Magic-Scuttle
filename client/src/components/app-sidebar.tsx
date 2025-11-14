@@ -1,4 +1,4 @@
-import { Home, Coins, TrendingUp, Wallet, FileText, Image, ShoppingBag, Sparkles, User, Activity } from "lucide-react";
+import { Coins, TrendingUp, Wallet, FileText, Image, ShoppingBag, Sparkles, User, Activity } from "lucide-react";
 import { SiX } from "react-icons/si";
 import { Link, useLocation } from "wouter";
 import {
@@ -14,12 +14,6 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-
-const dashboardItem = {
-  title: "Dashboard",
-  url: "/",
-  icon: Home,
-};
 
 const nftMenuItems = [
   {
@@ -93,25 +87,6 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location === dashboardItem.url}
-                  data-testid="link-dashboard"
-                >
-                  <Link href={dashboardItem.url}>
-                    <dashboardItem.icon className="h-4 w-4" />
-                    <span>{dashboardItem.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>NFT Marketplace</SidebarGroupLabel>
           <SidebarGroupContent>

@@ -9,7 +9,6 @@ import { AppHeader } from "@/components/AppHeader";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import NotFound from "@/pages/not-found";
-import Dashboard from "@/pages/Dashboard";
 import CreateToken from "@/pages/CreateToken";
 import CreatePresale from "@/pages/CreatePresale";
 import ActivePresales from "@/pages/ActivePresales";
@@ -25,7 +24,7 @@ import NFTActivity from "@/pages/NFTActivity";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={NFTMarketplace} />
       <Route path="/create-token" component={CreateToken} />
       <Route path="/create-presale" component={CreatePresale} />
       <Route path="/presales" component={ActivePresales} />

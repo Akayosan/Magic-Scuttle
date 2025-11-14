@@ -14,6 +14,7 @@ import CreatePresale from "@/pages/CreatePresale";
 import ActivePresales from "@/pages/ActivePresales";
 import MyTokens from "@/pages/MyTokens";
 import NFTCollections from "@/pages/NFTCollections";
+import CreateCollection from "@/pages/CreateCollection";
 import CollectionDetail from "@/pages/CollectionDetail";
 import NFTMarketplace from "@/pages/NFTMarketplace";
 import MintNFT from "@/pages/MintNFT";
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/presales" component={ActivePresales} />
       <Route path="/my-tokens" component={MyTokens} />
       <Route path="/nft/collections" component={NFTCollections} />
+      <Route path="/nft/create-collection" component={CreateCollection} />
       <Route path="/nft/collections/:id" component={CollectionDetail} />
       <Route path="/nft/marketplace" component={NFTMarketplace} />
       <Route path="/nft/mint" component={MintNFT} />

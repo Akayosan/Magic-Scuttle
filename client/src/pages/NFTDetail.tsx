@@ -1,18 +1,29 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ShoppingCart, Tag, Clock, Lock, ExternalLink, ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
+import { useState } from "react";
+import { useWallet } from "@/hooks/useWallet";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { NFTItem, NFTListing, NFTBid, NFTActivity } from "@shared/schema";
 
 export default function NFTDetail() {
   const [, params] = useRoute("/nft/:address/:tokenId");
   const address = params?.address;
   const tokenId = params?.tokenId;
+  const { address: walletAddress, isConnected } = useWallet();
+  const { toast } = useToast();
+  const [showListDialog, setShowListDialog] = useState(false);
+  const [listPrice, setListPrice] = useState("");
 
   if (!address || !tokenId) {
     return (
@@ -52,6 +63,91 @@ export default function NFTDetail() {
 
   const activeListing = listings?.find(l => l.isActive);
   const activeBids = bids?.filter(b => b.isActive) || [];
+  
+  const isOwner = isConnected && walletAddress && nft?.owner.toLowerCase() === walletAddress.toLowerCase();
+
+  const createListingMutation = useMutation({
+    mutationFn: async (price: string) => {
+      if (!isConnected || !walletAddress) {
+        throw new Error("Please connect your wallet to list NFT");
+      }
+      if (!nft) {
+        throw new Error("NFT not found");
+      }
+      if (!address || !tokenId) {
+        throw new Error("Invalid NFT address or token ID");
+      }
+      const parsedPrice = parseFloat(price);
+      if (isNaN(parsedPrice) || parsedPrice <= 0) {
+        throw new Error("Invalid price");
+      }
+      
+      return apiRequest("POST", "/api/nft/listings", {
+        nftId: nft.id,
+        contractAddress: address,
+        tokenId: tokenId,
+        seller: walletAddress,
+        price: price,
+        listingType: "fixed_price",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/nft/listings/token/${address}/${tokenId}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nft/listings"] });
+      toast({
+        title: "NFT Listed Successfully",
+        description: `Your NFT is now listed for ${listPrice} ETH`,
+      });
+      setShowListDialog(false);
+      setListPrice("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to List NFT",
+        description: error.message || "There was an error listing your NFT",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const cancelListingMutation = useMutation({
+    mutationFn: async (listingId: string) => {
+      if (!isConnected || !walletAddress) {
+        throw new Error("Please connect your wallet to cancel listing");
+      }
+      if (!isOwner) {
+        throw new Error("Only the owner can cancel this listing");
+      }
+      return apiRequest("DELETE", `/api/nft/listings/${listingId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/nft/listings/token/${address}/${tokenId}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/nft/listings"] });
+      toast({
+        title: "Listing Cancelled",
+        description: "Your NFT has been removed from the marketplace",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Cancel Listing",
+        description: error.message || "There was an error cancelling the listing",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleListNFT = () => {
+    if (!listPrice || parseFloat(listPrice) <= 0) {
+      toast({
+        title: "Invalid Price",
+        description: "Please enter a valid price greater than 0",
+        variant: "destructive",
+      });
+      return;
+    }
+    createListingMutation.mutate(listPrice);
+  };
 
   if (isLoading) {
     return (
@@ -109,15 +205,15 @@ export default function NFTDetail() {
 
                 {/* Badges Overlay */}
                 <div className="absolute top-4 left-4 flex gap-2">
-                  {nft.rarity && (
+                  {nft.revealedRarity !== null && nft.revealedRarity !== undefined && (
                     <Badge
                       className="backdrop-blur-sm"
                       data-testid="badge-rarity"
                     >
-                      {nft.rarity}
+                      Rarity Level {nft.revealedRarity}
                     </Badge>
                   )}
-                  {nft.encryptedRarity && (
+                  {nft.hasEncryptedRarity && (
                     <Badge className="bg-primary/90 backdrop-blur-sm">
                       <Lock className="w-3 h-3 mr-1" />
                       Private
@@ -172,7 +268,7 @@ export default function NFTDetail() {
                   </div>
                 </div>
 
-                {activeListing && (
+                {activeListing && activeListing.price && (
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground mb-1">Current Price</div>
                     <div
@@ -187,18 +283,60 @@ export default function NFTDetail() {
             </Card>
 
             {/* Action Buttons */}
-            {activeListing && (
-              <div className="flex gap-4">
-                <Button className="flex-1 h-12 text-lg gap-2" data-testid="button-buy">
-                  <ShoppingCart className="w-5 h-5" />
-                  Buy Now
-                </Button>
-                <Button variant="outline" className="flex-1 h-12 text-lg gap-2" data-testid="button-offer">
-                  <Tag className="w-5 h-5" />
-                  Make Offer
-                </Button>
-              </div>
-            )}
+            {activeListing ? (
+              isOwner ? (
+                <div className="flex gap-4">
+                  <Button 
+                    variant="destructive" 
+                    className="flex-1 h-12 text-lg gap-2" 
+                    onClick={() => cancelListingMutation.mutate(activeListing.id)}
+                    disabled={cancelListingMutation.isPending}
+                    data-testid="button-cancel-listing"
+                  >
+                    <Tag className="w-5 h-5" />
+                    {cancelListingMutation.isPending ? "Cancelling..." : "Cancel Listing"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-4">
+                  <Button 
+                    className="flex-1 h-12 text-lg gap-2" 
+                    disabled={!isConnected}
+                    data-testid="button-buy"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    {isConnected ? "Buy Now" : "Connect Wallet to Buy"}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 h-12 text-lg gap-2" 
+                    disabled={!isConnected}
+                    data-testid="button-offer"
+                  >
+                    <Tag className="w-5 h-5" />
+                    Make Offer
+                  </Button>
+                </div>
+              )
+            ) : isOwner ? (
+              <Button 
+                className="w-full h-12 text-lg gap-2" 
+                onClick={() => setShowListDialog(true)}
+                disabled={!isConnected}
+                data-testid="button-list-for-sale"
+              >
+                <Tag className="w-5 h-5" />
+                List for Sale
+              </Button>
+            ) : !isConnected ? (
+              <Button 
+                className="w-full h-12 text-lg gap-2" 
+                disabled
+                data-testid="button-connect-wallet"
+              >
+                Connect Wallet to Trade
+              </Button>
+            ) : null}
 
             {/* Tabs */}
             <Tabs defaultValue="details" className="w-full">
@@ -239,18 +377,25 @@ export default function NFTDetail() {
 
               <TabsContent value="attributes" className="mt-6">
                 <Card className="p-6">
-                  {nft.attributes && nft.attributes.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-4">
-                      {nft.attributes.map((attr, i) => (
-                        <div key={i} className="p-4 bg-muted/50 rounded-lg">
-                          <div className="text-xs text-muted-foreground mb-1">{attr.trait_type}</div>
-                          <div className="font-medium">{attr.value}</div>
+                  {(() => {
+                    try {
+                      const attrs = nft.attributes ? JSON.parse(nft.attributes) : null;
+                      return attrs && Array.isArray(attrs) && attrs.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          {attrs.map((attr: any, i: number) => (
+                            <div key={i} className="p-4 bg-muted/50 rounded-lg">
+                              <div className="text-xs text-muted-foreground mb-1">{attr.trait_type || 'Attribute'}</div>
+                              <div className="font-medium">{attr.value || attr}</div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">No attributes</p>
-                  )}
+                      ) : (
+                        <p className="text-center text-muted-foreground py-8">No attributes</p>
+                      );
+                    } catch {
+                      return <p className="text-center text-muted-foreground py-8">No attributes</p>;
+                    }
+                  })()}
                 </Card>
               </TabsContent>
 
@@ -304,7 +449,7 @@ export default function NFTDetail() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-mono font-bold text-lg">{bid.bidAmount} ETH</div>
+                            <div className="font-mono font-bold text-lg">{bid.amount} ETH</div>
                           </div>
                         </div>
                       ))}
@@ -318,6 +463,53 @@ export default function NFTDetail() {
           </div>
         </div>
       </div>
+
+      {/* List for Sale Dialog */}
+      <Dialog open={showListDialog} onOpenChange={setShowListDialog}>
+        <DialogContent data-testid="dialog-list-nft">
+          <DialogHeader>
+            <DialogTitle>List NFT for Sale</DialogTitle>
+            <DialogDescription>
+              Set a price for your NFT. Buyers will be able to purchase it instantly at this price.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">Price (ETH)</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.001"
+                min="0"
+                placeholder="0.05"
+                value={listPrice}
+                onChange={(e) => setListPrice(e.target.value)}
+                data-testid="input-list-price"
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the price in ETH that you want to sell this NFT for
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowListDialog(false)}
+              disabled={createListingMutation.isPending}
+              data-testid="button-cancel-dialog"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleListNFT}
+              disabled={createListingMutation.isPending || !listPrice || !isConnected}
+              data-testid="button-submit-listing"
+            >
+              {createListingMutation.isPending ? "Listing..." : "List NFT"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

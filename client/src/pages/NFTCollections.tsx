@@ -60,7 +60,7 @@ export default function NFTCollections() {
             <div>
               <div className="text-sm text-muted-foreground mb-1">Total Volume</div>
               <div className="text-2xl font-bold font-mono bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {(collections?.reduce((sum, c) => sum + Number(c.volumeTraded || 0), 0) || 0).toFixed(2)} ETH
+                {(collections?.reduce((sum, c) => sum + Number(c.volume || 0), 0) || 0).toFixed(2)} ETH
               </div>
             </div>
             <div>

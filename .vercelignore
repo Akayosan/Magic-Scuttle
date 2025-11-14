@@ -1,0 +1,65 @@
+# Vercel Ignore File - Exclude unnecessary files from deployment
+
+# Dependencies
+node_modules/
+.npm/
+
+# Build artifacts (keep only dist/client)
+dist/public/
+dist/index.js
+
+# Server files (backend stays on Replit)
+server/
+
+# Database
+*.db
+.drizzle/
+drizzle/
+
+# Environment files
+.env
+.env.*
+
+# Smart contracts
+contracts/
+scripts/
+artifacts/
+cache/
+typechain-types/
+
+# Development files
+.replit
+replit.nix
+.git/
+.gitignore
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Documentation (keep only for reference)
+*.md
+!README.md
+
+# Misc
+.replit.md
+push-to-github.sh
+build-vercel.sh

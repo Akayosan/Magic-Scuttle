@@ -1,32 +1,33 @@
 {
   "version": 2,
   "name": "magic-scuttle",
-  "builds": [
+  "buildCommand": "npm run build:frontend",
+  "outputDirectory": "dist/client",
+  "installCommand": "npm install",
+  "framework": null,
+  "rewrites": [
     {
-      "src": "client/**/*",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/client"
-      }
+      "source": "/api/:path*",
+      "destination": "https://magic-scuttle.replit.app/api/:path*"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://your-backend-url.com/api/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
     }
-  ],
-  "env": {
-    "VITE_CONTRACT_TOKEN": "@contract_token",
-    "VITE_CONTRACT_PRESALE": "@contract_presale",
-    "VITE_CONTRACT_NFT": "@contract_nft",
-    "VITE_CONTRACT_MARKETPLACE": "@contract_marketplace"
-  }
+  ]
 }

@@ -194,8 +194,10 @@ All endpoints working and tested:
 
 ### Latest Updates (November 14, 2025) - Production Ready ✅
 
-#### fhEVM Initialization Fixed ✅ (November 14, 2025)
-**Problem:** Users experienced "Failed to initialize fhEVM instance" error when minting NFTs with encrypted rarity.
+#### fhEVM Initialization & WASM Loading Fixed ✅ (November 14, 2025)
+
+**Problem 1: Configuration Error**
+Users experienced "Failed to initialize fhEVM instance" error when minting NFTs with encrypted rarity.
 
 **Root Cause:** Missing required `kmsContractAddress` parameter in fhevmjs v0.6.2 configuration.
 
@@ -214,14 +216,41 @@ All endpoints working and tested:
   }
   ```
 - Changed `aclAddress` → `aclContractAddress` (correct property name per fhevmjs API)
-- Added detailed step-by-step console logging for debugging
-- Enhanced error messages to show actual failure reason
+
+**Problem 2: WASM Loading Error**
+After config fix, new error appeared: `WebAssembly.instantiate(): expected magic word 00 61 73 6d, found 3c 21 44 4f @+0`
+
+**Root Cause:** 
+- Vite dev server returned HTML 404 page instead of WASM binary files
+- fhevmjs couldn't find `tfhe_bg.wasm` and `kms_lib_bg.wasm` files
+- Bytes `3c 21 44 4f` = ASCII `<!DO` (HTML DOCTYPE)
+
+**Solution Applied:**
+1. **Copied WASM files to public folder:**
+   ```bash
+   cp node_modules/fhevmjs/lib/tfhe_bg.wasm client/public/ (2.9MB)
+   cp node_modules/fhevmjs/lib/kms_lib_bg.wasm client/public/ (515KB)
+   ```
+
+2. **Updated initFhevm to use public folder paths:**
+   ```typescript
+   await initFhevm({
+     tfheParams: '/tfhe_bg.wasm',
+     kmsParams: '/kms_lib_bg.wasm',
+   });
+   ```
 
 **Impact:**
-- ✅ Encrypted NFT minting now works correctly
+- ✅ WASM files now served correctly with `Content-Type: application/wasm`
 - ✅ fhEVM instance initializes successfully on Sepolia
 - ✅ Console logs show all 4 initialization steps
-- ✅ No more "Failed to initialize fhEVM instance" errors
+- ✅ Encrypted NFT minting ready for production
+- ✅ No more "magic word" or initialization errors
+
+**Files Modified:**
+- `client/src/lib/fhevm.ts` - Configuration and WASM paths
+- `client/public/tfhe_bg.wasm` - TFHE cryptographic operations (new)
+- `client/public/kms_lib_bg.wasm` - KMS library (new)
 
 #### Navigation Reorganized ✅
 - NFT Marketplace section moved to top priority (user-requested)

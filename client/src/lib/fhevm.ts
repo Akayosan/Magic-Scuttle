@@ -15,7 +15,10 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
 
   try {
     console.log("Step 1: Initializing fhEVM WASM...");
-    await initFhevm();
+    await initFhevm({
+      tfheParams: '/tfhe_bg.wasm',
+      kmsParams: '/kms_lib_bg.wasm',
+    });
     console.log("Step 2: WASM initialized successfully");
     
     const config = {

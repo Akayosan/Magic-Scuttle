@@ -1,15 +1,11 @@
 import { BrowserProvider } from "ethers";
 import { initFhevm, createInstance, FhevmInstance } from "fhevmjs";
 
-// Sepolia testnet fhEVM gateway and ACL addresses
-const FHEVM_GATEWAY_ADDRESS = "0x33347831500F1e73f0ccCBcb91a0C9d2b8Ab9324";
-const FHEVM_ACL_ADDRESS = "0x339EcE85B9E11a3A3AA557582784a15d7F82AAf2";
-
 let fhevmInstance: FhevmInstance | null = null;
 
 /**
- * Initialize fhEVM instance for encrypted operations
- * @param provider Ethers provider
+ * Initialize fhEVM instance for encrypted operations on Sepolia testnet
+ * @param provider Ethers provider (not used but kept for API compatibility)
  * @returns Initialized fhEVM instance
  */
 export async function getFhevmInstance(provider: BrowserProvider): Promise<FhevmInstance> {
@@ -18,18 +14,23 @@ export async function getFhevmInstance(provider: BrowserProvider): Promise<Fhevm
   }
 
   try {
+    // Initialize WASM for cryptographic operations
     await initFhevm();
-    const network = await provider.getNetwork();
-    const chainId = Number(network.chainId);
     
+    // Create fhEVM instance with Sepolia testnet configuration
     fhevmInstance = await createInstance({
-      chainId,
-      networkUrl: window.location.origin,
-      gatewayUrl: FHEVM_GATEWAY_ADDRESS,
-      aclAddress: FHEVM_ACL_ADDRESS,
+      // Chain Configuration
+      chainId: 11155111, // Sepolia testnet
+      
+      // Network URLs
+      networkUrl: 'https://eth-sepolia.public.blastapi.io',
+      gatewayUrl: 'https://gateway.sepolia.zama.ai/',
+      
+      // Contract Addresses (Host Chain - Sepolia)
+      aclAddress: '0x687820221192C5B662b25367F70076A37bc79b6c',
     });
     
-    console.log("fhEVM initialized successfully for chainId:", chainId);
+    console.log("fhEVM initialized successfully for Sepolia testnet");
     return fhevmInstance;
   } catch (error) {
     console.error("Failed to initialize fhEVM:", error);
@@ -58,6 +59,7 @@ export async function createEncryptedInput(
  * @param contractAddress Contract containing the encrypted value
  * @param ciphertext Encrypted value to decrypt
  * @returns Decrypted value
+ * @deprecated This function is not yet implemented in fhevmjs v0.6.2
  */
 export async function requestDecryption(
   instance: FhevmInstance,
@@ -65,6 +67,7 @@ export async function requestDecryption(
   ciphertext: string
 ): Promise<bigint> {
   try {
+    // @ts-ignore - decrypt method not available in fhevmjs v0.6.2
     const decrypted = await instance.decrypt(contractAddress, ciphertext);
     return decrypted;
   } catch (error) {

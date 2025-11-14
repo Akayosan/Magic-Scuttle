@@ -329,70 +329,37 @@ export default function MintNFT() {
             <Card className="p-6">
               <Label className="text-sm font-medium mb-4 block">Privacy Settings</Label>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between opacity-50">
                   <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-primary" />
-                    <Label htmlFor="encrypt-rarity" className="cursor-pointer">
-                      Encrypt Rarity
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                    <Label htmlFor="encrypt-rarity" className="cursor-not-allowed">
+                      Encrypt Rarity (Coming Soon)
                     </Label>
                   </div>
                   <Switch
                     id="encrypt-rarity"
-                    checked={encryptRarity}
-                    onCheckedChange={setEncryptRarity}
+                    checked={false}
+                    disabled
                     data-testid="switch-encrypt-rarity"
                   />
                 </div>
 
-                {encryptRarity && (
-                  <div>
-                    <Label htmlFor="rarity">Rarity Level (1-100)</Label>
-                    <Input
-                      id="rarity"
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={rarity}
-                      onChange={(e) => setRarity(parseInt(e.target.value) || 1)}
-                      placeholder="Enter rarity level"
-                      data-testid="input-rarity"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Higher numbers = more rare. This value will be encrypted on-chain.
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between opacity-50">
                   <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-primary" />
-                    <Label htmlFor="encrypt-attrs" className="cursor-pointer">
-                      Encrypt Attributes
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                    <Label htmlFor="encrypt-attrs" className="cursor-not-allowed">
+                      Encrypt Attributes (Coming Soon)
                     </Label>
                   </div>
                   <Switch
                     id="encrypt-attrs"
-                    checked={encryptAttributes}
-                    onCheckedChange={setEncryptAttributes}
+                    checked={false}
+                    disabled
                     data-testid="switch-encrypt-attributes"
-                    disabled={true}
                   />
                 </div>
-                {encryptAttributes && (
-                  <p className="text-xs text-muted-foreground">
-                    Coming soon: Encrypt individual attributes
-                  </p>
-                )}
               </div>
 
-              {(encryptRarity || encryptAttributes) && (
-                <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                  <p className="text-xs text-muted-foreground">
-                    <Lock className="w-3 h-3 inline mr-1" />
-                    Encrypted data can only be decrypted by authorized addresses using fhEVM
-                  </p>
-                </div>
-              )}
             </Card>
           </div>
 

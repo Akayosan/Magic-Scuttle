@@ -1,7 +1,7 @@
-# Scuttle - Privacy-Preserving DeFi Platform
+# Magic Scuttle - The First NFT and DeFi Marketplace with Fully Homomorphic Encryption
 
 ## Overview
-Scuttle is a full-stack decentralized application built to leverage Zama's fhEVM for privacy-preserving operations on the Sepolia testnet. Its primary purpose is to enable confidential DeFi activities, including the creation of ERC20 tokens with encrypted supply, privacy-preserving presales, and a feature-rich NFT marketplace supporting encrypted rarity and attributes. The project aims to provide a secure and private environment for digital asset management, inspired by leading platforms like Magic Eden and OpenSea.
+Magic Scuttle is a full-stack decentralized application built to leverage Zama's fhEVM for privacy-preserving operations on the Sepolia testnet. Its primary purpose is to enable confidential DeFi activities, including NFT marketplace with listing/trading functionality, user profiles showing owned NFTs, collection creation, and NFT minting. The project aims to provide a secure and private environment for digital asset management, inspired by leading platforms like Magic Eden and OpenSea.
 
 ## User Preferences
 - **Coding Style:** TypeScript-first, functional where possible, comprehensive error handling
@@ -15,8 +15,12 @@ The platform is a full-stack dApp utilizing Solidity smart contracts, a React/Ty
 **UI/UX Decisions:**
 - The frontend is built with React, TypeScript, Vite, TailwindCSS, and shadcn/ui.
 - Design aesthetics are inspired by Magic Eden and OpenSea, featuring purple/pink gradients, a dark theme, and glassmorphism effects.
-- The Dashboard includes a featured NFT slider with Embla Carousel, displaying top recent NFTs with IPFS image display and encrypted NFT badges.
-- Navigation is reorganized to prioritize the NFT Marketplace, with Tokens & Presales marked as "Soon."
+- Branding: "Magic Scuttle" with tagline "The first NFT and DeFi marketplace with Fully Homomorphic Encryption🔒"
+- Favicon uses scuttle-logo.jpg for consistent branding
+- NFT Marketplace is the homepage (Dashboard removed)
+- Navigation prioritizes NFT Marketplace, with Tokens & Presales marked as "Soon"
+- Mint NFT page has encryption options disabled (display-only) to avoid errors - all minting is standard
+- NFT listings appear in marketplace when listed for sale
 - The application supports bilingual (Indonesian/English) content in key areas.
 
 **Technical Implementations & Feature Specifications:**

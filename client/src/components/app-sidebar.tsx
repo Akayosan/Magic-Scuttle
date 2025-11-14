@@ -80,9 +80,9 @@ export function AppSidebar() {
           />
           <div>
             <h2 className="font-display text-lg font-semibold text-sidebar-foreground">
-              Scuttle
+              Magic Scuttle
             </h2>
-            <p className="text-xs text-muted-foreground">Privacy DeFi Platform</p>
+            <p className="text-xs text-muted-foreground">FHE NFT & DeFi Marketplace</p>
           </div>
         </div>
       </SidebarHeader>

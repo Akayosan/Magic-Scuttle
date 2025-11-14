@@ -3,9 +3,13 @@
 
 echo "🏗️  Building Magic Scuttle Frontend for Vercel..."
 
-# Build frontend using Vite
+# Clean previous build
+echo "🧹 Cleaning previous build..."
+rm -rf dist/client
+
+# Build frontend using Vite with Vercel config
 echo "📦 Building React application..."
-npx vite build --outDir dist/client
+npx vite build --config vite.config.vercel.ts
 
 if [ $? -eq 0 ]; then
     echo "✅ Frontend build successful!"
@@ -13,6 +17,9 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "Files ready for Vercel deployment:"
     ls -lh dist/client/
+    echo ""
+    echo "Total bundle size:"
+    du -sh dist/client/
 else
     echo "❌ Build failed!"
     exit 1

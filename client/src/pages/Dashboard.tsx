@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useState } from 'react';
+import { ipfsToHttp } from "@/lib/ipfs";
 
 export default function Dashboard() {
   const { walletState } = useWallet();
@@ -180,7 +181,7 @@ export default function Dashboard() {
                           <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
                             {nft.imageUrl ? (
                               <img 
-                                src={nft.imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}
+                                src={ipfsToHttp(nft.imageUrl)}
                                 alt={nft.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 data-testid={`img-nft-${nft.id}`}

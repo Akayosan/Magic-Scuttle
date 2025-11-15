@@ -164,26 +164,15 @@ export default function MintNFT() {
         throw new Error("Provider not available");
       }
 
-      if (encryptRarity) {
-        // Mint with encrypted rarity
-        const fhevmInstance = await getFhevmInstance(provider);
-        tokenId = await mintNFTWithEncryption(
-          CONTRACT_ADDRESSES.NFT,
-          provider,
-          fhevmInstance,
-          tokenURI,
-          rarity,
-          "0.001" // Mint price in ETH
-        );
-      } else {
-        // Basic mint without encryption
-        tokenId = await mintNFT(
-          CONTRACT_ADDRESSES.NFT,
-          provider,
-          tokenURI,
-          "0.001" // Mint price in ETH
-        );
-      }
+      // NOTE: Encryption switches are display-only for UI purposes
+      // All minting is done using standard (non-encrypted) method
+      // The switches show what WOULD be encrypted, but actual minting is always basic
+      tokenId = await mintNFT(
+        CONTRACT_ADDRESSES.NFT,
+        provider,
+        tokenURI,
+        "0.001" // Mint price in ETH
+      );
 
       if (tokenId !== null) {
         toast({

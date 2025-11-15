@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Lock } from "lucide-react";
 import type { NFTItem, NFTListing } from "@shared/schema";
+import { ipfsToHttp } from "@/lib/ipfs";
 
 const RARITY_MAP: Record<number, string> = {
   0: "Common",
@@ -31,10 +32,18 @@ export function NFTCard({ nft, listing, onClick }: NFTCardProps) {
       <div className="aspect-square relative overflow-hidden bg-muted">
         {nft.imageUrl ? (
           <img
-            src={nft.imageUrl}
+            src={ipfsToHttp(nft.imageUrl)}
             alt={nft.name || `Token #${nft.tokenId}`}
             className="w-full h-full object-cover"
             data-testid={`img-nft-${nft.id}`}
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.style.display = 'none';
+              img.parentElement?.classList.add('flex', 'items-center', 'justify-center');
+              if (img.parentElement) {
+                img.parentElement.innerHTML = '<span class="text-4xl text-muted-foreground">NFT</span>';
+              }
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">

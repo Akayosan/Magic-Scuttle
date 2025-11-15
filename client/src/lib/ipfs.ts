@@ -14,7 +14,7 @@ const DEFAULT_GATEWAY = IPFS_GATEWAYS.PINATA;
 
 /**
  * Convert IPFS URL to HTTP gateway URL
- * @param ipfsUrl - IPFS URL in format ipfs://QmXXX... or https://...
+ * @param ipfsUrl - IPFS URL in format ipfs://CID... or raw CID
  * @param gateway - Optional custom gateway URL
  * @returns HTTP URL that browsers can load, or empty string if invalid
  */
@@ -24,28 +24,33 @@ export function ipfsToHttp(ipfsUrl: string | null | undefined, gateway: string =
     return '';
   }
 
+  const trimmedUrl = ipfsUrl.trim();
+
   // Already HTTP URL - return as is
-  if (ipfsUrl.startsWith('http://') || ipfsUrl.startsWith('https://')) {
-    return ipfsUrl;
+  if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+    return trimmedUrl;
   }
 
   // Convert ipfs:// protocol to HTTP gateway
-  if (ipfsUrl.startsWith('ipfs://')) {
-    const path = ipfsUrl.replace('ipfs://', '');
-    // Basic validation: ensure there's something after ipfs://
-    if (!path || path.length < 10) {
-      console.warn(`Malformed IPFS URL: ${ipfsUrl}`);
+  if (trimmedUrl.startsWith('ipfs://')) {
+    const pathAndCid = trimmedUrl.replace('ipfs://', '');
+    if (!pathAndCid) {
+      console.warn(`Empty IPFS URL: ${ipfsUrl}`);
       return '';
     }
-    return `${gateway}${path}`;
+    // Keep the full path (CID + any nested paths like /metadata.json)
+    return `${gateway}${pathAndCid}`;
   }
 
-  // If it starts with common CID prefixes, assume it's a raw CID
-  if (ipfsUrl.startsWith('Qm') || ipfsUrl.startsWith('baf')) {
-    return `${gateway}${ipfsUrl}`;
+  // Check if it looks like a raw CID (alphanumeric, case-insensitive)
+  // Extract just the CID part (before any slashes for paths)
+  const cidMatch = trimmedUrl.match(/^([a-z0-9]+)/i);
+  if (cidMatch && cidMatch[1].length >= 10) {
+    // Return gateway + full URL (preserves any paths after CID)
+    return `${gateway}${trimmedUrl}`;
   }
 
-  // Unknown format - log warning and return empty
+  // Unknown format
   console.warn(`Unrecognized IPFS URL format: ${ipfsUrl}`);
   return '';
 }

@@ -196,8 +196,8 @@ export default function MintNFT() {
               imageUrl: imageURI,
               name,
               description: description || undefined,
-              hasEncryptedRarity: encryptRarity,
-              hasEncryptedAttributes: encryptAttributes,
+              hasEncryptedRarity: false,
+              hasEncryptedAttributes: false,
               attributes: attributes.filter(a => a.trait_type && a.value).length > 0 
                 ? JSON.stringify(attributes.filter(a => a.trait_type && a.value))
                 : undefined,

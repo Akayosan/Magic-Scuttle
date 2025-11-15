@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Image as ImageIcon } from "lucide-react";
 import type { NFTCollection } from "@shared/schema";
+import { ipfsToHttp } from "@/lib/ipfs";
 
 interface CollectionCardProps {
   collection: NFTCollection;
@@ -18,7 +19,7 @@ export function CollectionCard({ collection, onClick }: CollectionCardProps) {
       <div className="h-32 relative overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/10 to-primary/20">
         {collection.bannerUrl ? (
           <img
-            src={collection.bannerUrl}
+            src={ipfsToHttp(collection.bannerUrl)}
             alt={`${collection.name} banner`}
             className="w-full h-full object-cover"
           />
@@ -34,7 +35,7 @@ export function CollectionCard({ collection, onClick }: CollectionCardProps) {
         <div className="w-20 h-20 rounded-xl border-4 border-card bg-card overflow-hidden shadow-lg">
           {collection.imageUrl ? (
             <img
-              src={collection.imageUrl}
+              src={ipfsToHttp(collection.imageUrl)}
               alt={collection.name}
               className="w-full h-full object-cover"
               data-testid={`img-collection-${collection.id}`}

@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NFTCard } from "@/components/NFTCard";
 import type { NFTCollection, NFTItem } from "@shared/schema";
 import { Image, TrendingUp, Users, Lock, ExternalLink } from "lucide-react";
+import { ipfsToHttp } from "@/lib/ipfs";
 
 export default function CollectionDetail() {
   const [, params] = useRoute("/nft/collections/:id");
@@ -67,7 +68,7 @@ export default function CollectionDetail() {
       <div
         className="relative h-64 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20"
         style={{
-          backgroundImage: collection.bannerUrl ? `url(${collection.bannerUrl})` : undefined,
+          backgroundImage: collection.bannerUrl ? `url(${ipfsToHttp(collection.bannerUrl)})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -80,7 +81,7 @@ export default function CollectionDetail() {
           <div className="relative">
             {collection.imageUrl ? (
               <img
-                src={collection.imageUrl}
+                src={ipfsToHttp(collection.imageUrl)}
                 alt={collection.name}
                 className="w-32 h-32 rounded-lg border-4 border-background object-cover shadow-xl"
               />

@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useWallet } from "@/hooks/useWallet";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ipfsToHttp } from "@/lib/ipfs";
 import type { NFTItem, NFTListing, NFTBid, NFTActivity } from "@shared/schema";
 
 export default function NFTDetail() {
@@ -192,7 +193,7 @@ export default function NFTDetail() {
               <div className="aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/10 to-primary/20 relative group">
                 {nft.imageUrl ? (
                   <img
-                    src={nft.imageUrl}
+                    src={ipfsToHttp(nft.imageUrl)}
                     alt={nft.name}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     data-testid="img-nft"

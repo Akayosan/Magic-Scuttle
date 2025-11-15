@@ -16,31 +16,38 @@ const DEFAULT_GATEWAY = IPFS_GATEWAYS.PINATA;
  * Convert IPFS URL to HTTP gateway URL
  * @param ipfsUrl - IPFS URL in format ipfs://QmXXX... or https://...
  * @param gateway - Optional custom gateway URL
- * @returns HTTP URL that browsers can load
+ * @returns HTTP URL that browsers can load, or empty string if invalid
  */
 export function ipfsToHttp(ipfsUrl: string | null | undefined, gateway: string = DEFAULT_GATEWAY): string {
-  if (!ipfsUrl) {
+  // Handle null/undefined/empty
+  if (!ipfsUrl || typeof ipfsUrl !== 'string' || ipfsUrl.trim() === '') {
     return '';
   }
 
-  // Already HTTP URL
+  // Already HTTP URL - return as is
   if (ipfsUrl.startsWith('http://') || ipfsUrl.startsWith('https://')) {
     return ipfsUrl;
   }
 
-  // Convert ipfs:// to HTTP gateway
+  // Convert ipfs:// protocol to HTTP gateway
   if (ipfsUrl.startsWith('ipfs://')) {
-    const hash = ipfsUrl.replace('ipfs://', '');
-    return `${gateway}${hash}`;
+    const path = ipfsUrl.replace('ipfs://', '');
+    // Basic validation: ensure there's something after ipfs://
+    if (!path || path.length < 10) {
+      console.warn(`Malformed IPFS URL: ${ipfsUrl}`);
+      return '';
+    }
+    return `${gateway}${path}`;
   }
 
-  // If it's just a hash (QmXXX...)
-  if (ipfsUrl.startsWith('Qm') || ipfsUrl.startsWith('bafy')) {
+  // If it starts with common CID prefixes, assume it's a raw CID
+  if (ipfsUrl.startsWith('Qm') || ipfsUrl.startsWith('baf')) {
     return `${gateway}${ipfsUrl}`;
   }
 
-  // Fallback: return as-is
-  return ipfsUrl;
+  // Unknown format - log warning and return empty
+  console.warn(`Unrecognized IPFS URL format: ${ipfsUrl}`);
+  return '';
 }
 
 /**

@@ -151,7 +151,7 @@ Full-featured NFT marketplace with escrow and automated payouts.
 
 ### Backend
 - **Node.js + Express**: RESTful API server
-- **PostgreSQL**: Relational database (Replit managed)
+- **PostgreSQL**: Relational database 
 - **Drizzle ORM**: Type-safe database access
 - **Zod**: Runtime schema validation
 - **Pinata API**: IPFS pinning service

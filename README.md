@@ -125,7 +125,7 @@ Full-featured NFT marketplace with escrow and automated payouts.
 | **Input Verification Verifier** | `0x7048C39f048125eDa9d678AEbaDfB22F7900a29F` | Additional input verification |
 
 **Zama Infrastructure:**
-- **Relayer URL**: `https://relayer.testnet.zama.cloud`
+- **Relayer URL**: `https://relayer.testnet.zama.org`
 - **Gateway Chain ID**: `55815`
 - **fhEVM Version**: `0.9.x`
 - **Network**: Sepolia Testnet (Chain ID: 11155111)
@@ -158,7 +158,6 @@ Full-featured NFT marketplace with escrow and automated payouts.
 
 ### Blockchain Infrastructure
 - **Sepolia Testnet**: Ethereum test network
-- **BlastAPI**: RPC provider for Sepolia
 - **Zama fhEVM**: Fully Homomorphic Encryption infrastructure
 - **IPFS**: Decentralized storage for NFT metadata
 
@@ -171,20 +170,14 @@ Full-featured NFT marketplace with escrow and automated payouts.
 - **Sepolia testnet ETH** ([Get from faucet](https://sepoliafaucet.com/))
 - **Git** for cloning the repository
 
-### Installation
 
-1. **Clone the repository:**
-```bash
-git clone https://github.com/Akayosan/Magic-Scuttle.git
-cd Magic-Scuttle
-```
 
-2. **Install dependencies:**
+ **Install dependencies:**
 ```bash
 npm install
 ```
 
-3. **Set up environment variables:**
+ **Set up environment variables:**
 ```bash
 # Create .env file with the following:
 DATABASE_URL=your_postgres_url
@@ -195,12 +188,12 @@ PINATA_API_KEY=your_pinata_api_key
 PINATA_SECRET_KEY=your_pinata_secret_key
 ```
 
-4. **Start the development server:**
+**Start the development server:**
 ```bash
 npm run dev
 ```
 
-5. **Open the application:**
+**Open the application:**
 Navigate to `http://localhost:5000` in your browser
 
 ### Quick Start Guide
@@ -394,7 +387,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 - **[Zama](https://www.zama.ai/)** for the groundbreaking fhEVM technology
 - **[OpenZeppelin](https://www.openzeppelin.com/)** for secure smart contract libraries
-- **[Replit](https://replit.com/)** for the excellent development platform
 - **[Pinata](https://www.pinata.cloud/)** for reliable IPFS infrastructure
 - **The Ethereum Community** for continuous innovation in Web3
 

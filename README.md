@@ -4,7 +4,7 @@
 
 Magic Scuttle is a revolutionary privacy-preserving decentralized application that leverages Zama's fhEVM (Fully Homomorphic Encryption Virtual Machine) to bring confidential trading to the Sepolia testnet. Experience truly private NFT marketplace, token presales, and DeFi activities without compromising blockchain transparency.
 
-https://drive.google.com/file/d/1Da5IbP3POesNZr6T58DfJa0qGtasDJDK/view?usp=drivesdk
+
 
 <div align="center">
 
